@@ -9,7 +9,7 @@ The bookdown can be found here:
 
 The scripts (named e.g. ~01-process-cruise-data.Rmd~) are to be run in order of
 the numbers on the filenames.
-- The output will be saved under ~~/output~.
+- The output will be saved under =~/output=.
 - The data should be located in a directory that should be assigned to the R
   variable ~raw_data_dir~.
 - The current raw flow cytometry data is placed in a Dropbox folder located
