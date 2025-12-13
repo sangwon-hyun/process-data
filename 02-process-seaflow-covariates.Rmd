@@ -1,0 +1,220 @@
+# Ocean Environmental Covariates for Seaflow cruises
+
+## Loading and visualizing data
+
+```{r setup}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+library(tidyverse) 
+library(cmap4r)
+library(cruisedat)
+
+## Output directory
+here::i_am("01-process-seaflow.Rmd") ## setwd("~/repos/process-data")
+outputdir = "output/seaflow-covariates" ##outputdir = "~/Dropbox/data/ocean/seaflow/2025-09-15"
+dir.create(outputdir, showWarnings = FALSE)
+
+## Helpers
+## source("02-helpers.R")
+
+## Other setup
+## colocalized_csvfile = file.path(outputdir, paste0(cruisename, "-from-CMAP.csv"))
+```
+
+We'll procure the environmental covariates that go along with seaflow cruises,
+from Simons CMAP.
+
+
+What are all the tables and variables we need?
+
+```{r, eval = FALSE}
+## Get authorization
+cmap4r::set_authorization(reset = FALSE, cmap_key = "ec7b8400-e5ae-11eb-88c6-c79daf4f0e4a")
+
+## Get the cadtalog
+catalog = cmap4r::get_catalog()
+
+## Do colocalization 
+## cmap4r::get_cruises()
+targetVars = catalog %>% filter(Table_Name == "tblPisces_NRT") %>% pull(Variable)
+dat = cmap4r::along_track("MGL1704", targetTables = "tblPisces_NRT",
+                    targetVars = "Fe", temporalTolerance = 3.5, latTolerance = 5,
+                    lonTolerance = 5, depthTolerance = 10, depth1 = 0, depth2 = 10) 
+dat %>% ggplot() + geom_point(aes(x=time, y= Fe))
+
+## This will further be averaged into unique hours.
+dat %>% mutate(hourly_time = lubridate::floor_date(time, unit = "hours")) %>%
+  group_by(hourly_time) %>%
+  summarize(Fe = mean(Fe, na.rm=TRUE)) %>% 
+ggplot() + geom_point(aes(x=hourly_time, y= Fe))
+
+## Then, the coverage is assessed.
+dat %>% ggplot() + geom_point(aes(y=lat, x=lon, col = Fe))
+
+## repodir = "~/repos/cruisedat"
+## outputdir = "."
+## dir.create(file.path(".", "export"), showWarnings = FALSE)
+```
+
+(It may not be practical to simply pull all data from all tables, as I used to
+back in 2019.)
+
+I realize there are at least three types of covariates.
+
+- **Collected directly on the ship.** Each cruise's webpage shows a list of
+  these. One probably needs to go over these manually, and selectively download
+  them.
+  + Also, there are measurements that are taken *sparsely* along a cruise track,
+    sometimes at depth. These are only useful if they can be reasonably
+    interpolated from the original resolution to the hourly level.
+
+- **In situ drifter/float**
+  + Global Drifter Program: (1979-02-15 – 2019-08-07): `tblGlobalDrifterProgram`
+  + Argo Float Core Profiles (1997-07-28 – 2024-06-09): `tblArgoCore_REP_Jun2024`
+    + I'm guessing this is the latest updated version. Others include:
+    `tblArgoCore_REP_Feb2024`, `tblArgoCore_REP_Nov2023`, `tblArgoCore_REP`
+  + Argo Float Biogeochemical Profiles (2002-09-08 – 2024-06-08)  `tblArgoBGC_REP_Jun2024`
+    + I'm guessing this is the latest updated version. Others include:
+    `tblArgoBGC_REP`, `tblArgoBGC_REP_Feb2024`, `tblArgoBGC_REP_Nov2023`,
+    `tblArgoBGC_REP_Jun2023`
+  + GEOTRACES Intermediate Data Product 2021 v2 - Seawater (2006-07-13 – 2018-11-22): `tblGeotraces_Seawater_IDP2021v2`
+  + UCSD Argo Mixed Layer Depth Climatology Model 2022: `tblArgo_MLD_2022_Climatology` 
+    + Seems super relevant
+    + Also similar to `tblArgo_MLD_Climatology`
+
+- **Models (climatology)**
+  + Mercator-Pisces Biogeochemistry and Weekly Forecast  (2011-12-31 to 2019-04-27): `tblPisces_NRT` 
+  + GOBAI-O2 Climatology v2.2 (Gridded Ocean Biogeochemistry from Artificial Intelligence - Oxygen)
+  + Mercator-Pisces Biogeochemistry Daily Forecast Nutrients (2022-01-01 to 2025-07-18): `tblPisces_Forecast_Nutrients`
+  + Darwin Biogeochemistry 3 Day Averaged Model (1994-01-03 to 2015-12-30): `tblDarwin_Nutrient`
+  + World Ocean Atlas 2013 v2 Climatology: `tblWOA_Climatology`
+  + MODIS Chlorophyll Concentration (2002-07-04 to 2022-06-10): `tblModis_CHL`
+  + MODIS Photosynthetically Available Radiation Daily 9km (2010-01-01 to 2022-03-07): `tblModis_PAR`
+
+- **Other less promising models**
+  + Mercator-Pisces Biogeochemistry Daily Forecast Car: (2022-01-01 – 2025-07-18): `tblPisces_Forecast_Car`
+  + Mercator-Pisces Biogeochemistry Daily Forecast Pft: (2022-01-01 – 2025-07-18): `tblPisces_Forecast_Pft`
+  + GOBAI-O2 Climatology v2.2 Gridded Ocean Biogeochemistry from Artificial
+    Intelligence - Oxygen (UNknown time range): `tblGOBAI_O2_v2_2_Climatology`
+  + Mercator-Pisces Biogeochemistry Daily Forecast Co2 (2022-01-01 to 2025-07-18): `tblPisces_Forecast_Co2`
+
+So, a strategy is to go through these steps:
+- Manually co-localize the above tables and all sensible variables therein. 
+- Examine the on-cruise measurements (from, e.g., https://simonscmap.com/catalog/cruises/MGL1704 for Gradients 2), by 
+  1. Excluding any gated products (which will have lots of observations, thousands or tens of thousands), 
+  2. Exclude any things that are related to other non-Seaflow cytometers (IFCB,
+     or imaging flow cytobot, which measures large particles above 3microns,
+     which is larger than the small picophytoplankton we want to study),
+  3. Exclude any datasets that have too few surface observations (fewer than 30
+     rows altogether, or in the "DEPTH" visualization tab, fewer than 30-ish
+     observations on the surface.)
+  4. Exclude GRUMP altogether.
+
+Next, for every model/climatology or drift/floater dataset, we need to use a for-loop that goes over a time radius of {1 hr, 1 day, 3.5 days, 14 days}, and a latitude+longitude box of side lengths {0.1 degrees, 1 degrees, 2 degrees, 5 degrees}. 
+
+(I have some code lying around (in github repository `sangwon-hyun/many-cruises`) that can do this.)
+
+For now, this code is borrowed from `02-covariates`.
+
+```{r, eval = FALSE}
+base = "00-covariates"
+source(here::here("data", base, "colocalize-params.R"))
+
+## Temporarily placing here (redundant)
+ids_final = readRDS(file = here::here("data", base, "ids_final.RDS"))
+vars = read.csv(file = file.path("/home/sangwonh/repos/cruisedat", "CMAP_vars_all_cruises.csv")) %>% as_tibble()
+vars = vars %>% mutate(Table_Name = str_replace_all(Table_Name,
+                                             pattern = "tblWind_NRT",
+                                             replacement = "tblWind_NRT_deprecated")) ##%>% kable() %>% print()
+vars %>% kable() %>% print()
+nvar = nrow(vars)
+## End of temporary
+
+datlist = mclapply(ids_final, function(id){
+
+  ## Safely restarting cruises that don't exist
+  if(file.exists(file = file.path(outputdir, "cmap-data", paste0(id, "-adaptive.RDS")))) return(NULL)
+
+  ## Colocalize all variables
+  reslist = lapply(1:nvar, function(ivar){
+    tryCatch({
+
+      varname = vars %>% pull(Variable) %>% .[ivar]
+      tabname = vars %>% pull(Table_Name) %>% .[ivar]
+
+      if(tabname %in% c("tblWOA_Climatology", "tblPisces_NRT", "tblCHL_REP", "tblModis_PAR")){
+        param = list_of_params[[tabname]]
+      } else {
+        param = list_of_params[["other"]]
+      }
+      for(isize in 1:5){
+
+        ## Increase the radius
+        if(isize > 1) param$latTolerance = param$latTolerance + 0.1 * 4
+        if(isize > 1) param$lonTolerance = param$lonTolerance + 0.1 * 4
+
+        ## Perform the colocalization
+        dt = along_track(id,
+                         targetTables = tabname,
+                         targetVars = varname,
+                         temporalTolerance = param$temporalTolerance,
+                         latTolerance = param$latTolerance,
+                         lonTolerance = param$lonTolerance,
+                         depthTolerance = param$depthTolerance,
+                         depth1 = param$depth1,
+                         depth2 = param$depth2) %>% as_tibble() 
+        dt = dt %>% dplyr::select(!contains("_std"))
+
+        ## Check the missing proportion
+        dt_missing_prop = dt %>% summarize(naprop = mean(is.na(!!sym(varname)))) %>% unlist()
+        ## print(dt_missing_prop)
+        if(dt_missing_prop == 0) break
+      }
+      return(dt)
+    }, error = function(e){
+      return(NULL)
+    })
+  })
+  lens = reslist %>% purrr::map(. %>% length()) %>% unlist()
+  if(any(lens == 0)){ reslist = reslist[-which(lens == 0)] }
+  if(length(reslist) > 0){
+    fullres = reslist %>% purrr::reduce(full_join, by = c("time", "lon", "lat"))
+    fullres = fullres %>% dplyr::select(!contains("_std"))
+    saveRDS(fullres, file = file.path(outputdir, "cmap-data", paste0(id, "-adaptive.RDS")))
+    ## saveRDS(fullres, file = file.path(outputdir, "cmap-data", paste0(id, "-adaptive.RDS")))
+    return(NULL)
+  }
+  return(NULL)
+}, mc.cores = length(ids_final), mc.preschedule = FALSE)
+```
+
+
+
+This is what I *used* to do; the CMAP_vars are variables that were used for the flowmix paper.
+
+```{r, eval = FALSE}
+## This is the *superset* of all the relevant data tables and variables
+dat = read.csv(file = file.path(outputdir, "CMAP_vars.csv")) ## This needs to be updated.
+
+## Get the duplicated
+dat = unique(dat[,c("Variable", "Table_Name")])
+dat = apply(dat, 2, as.character)
+
+## Make some manual changes
+dat[15, "Table_Name"] = "tblCHL_REP"
+dat = dat[-which(dat[,"Variable"] %in% c("disp_bw_adt", "ftle_bw_adt")),]
+## ADT and SLA are different, per:
+## https://www.aviso.altimetry.fr/en/data/data-access/las-live-access-server/lively-data/2004/june-15-2004-sla-vs-adt.html
+## They seem to have removed adt from the dataset; it doesn't exist.
+
+## Some basic checks
+assert_that(all(check_with_catalog(dat[,"Variable"],"varName",
+                                   apiKey = apiKey)))
+assert_that(all(check_with_catalog(dat[,"Table_Name"],"tableName",
+                                   apiKey = apiKey)))
+
+## Not sure why salinity is not in here, but include it.
+dat = rbind(c("sss", "tblSSS_NRT"), dat)
+varNames = dat[,"Variable"]
+tableNames = dat[,"Table_Name"]
+```
+

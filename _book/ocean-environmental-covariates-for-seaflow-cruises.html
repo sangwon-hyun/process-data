@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4 Ocean Environmental Covariates for Seaflow cruises | Processing data</title>
+  <meta name="description" content="4 Ocean Environmental Covariates for Seaflow cruises | Processing data" />
+  <meta name="generator" content="bookdown 0.45 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4 Ocean Environmental Covariates for Seaflow cruises | Processing data" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4 Ocean Environmental Covariates for Seaflow cruises | Processing data" />
+  
+  
+  
+
+<meta name="author" content="Sangwon Hyun and authors" />
+
+
+<meta name="date" content="2025-12-12" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="binning-five-gradients-cruises.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="processing-seaflow-data-only-gradients-1-through-5.html"><a href="processing-seaflow-data-only-gradients-1-through-5.html"><i class="fa fa-check"></i><b>2</b> Processing Seaflow data (only Gradients 1 through 5)</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="processing-seaflow-data-only-gradients-1-through-5.html"><a href="processing-seaflow-data-only-gradients-1-through-5.html#setup"><i class="fa fa-check"></i><b>2.1</b> Setup</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="binning-five-gradients-cruises.html"><a href="binning-five-gradients-cruises.html"><i class="fa fa-check"></i><b>3</b> Binning five Gradients cruises</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="binning-five-gradients-cruises.html"><a href="binning-five-gradients-cruises.html#data-cleaning-notes"><i class="fa fa-check"></i><b>3.1</b> Data cleaning notes</a></li>
+<li class="chapter" data-level="3.2" data-path="binning-five-gradients-cruises.html"><a href="binning-five-gradients-cruises.html#cleaning-gradients-3"><i class="fa fa-check"></i><b>3.2</b> Cleaning Gradients 3</a></li>
+<li class="chapter" data-level="3.3" data-path="binning-five-gradients-cruises.html"><a href="binning-five-gradients-cruises.html#cleaning-other-gradients-cruises"><i class="fa fa-check"></i><b>3.3</b> Cleaning other Gradients cruises</a></li>
+<li class="chapter" data-level="3.4" data-path="binning-five-gradients-cruises.html"><a href="binning-five-gradients-cruises.html#code-to-visualize-entire-3d-cytograms."><i class="fa fa-check"></i><b>3.4</b> Code to visualize entire 3d cytograms.</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="ocean-environmental-covariates-for-seaflow-cruises.html"><a href="ocean-environmental-covariates-for-seaflow-cruises.html"><i class="fa fa-check"></i><b>4</b> Ocean Environmental Covariates for Seaflow cruises</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="ocean-environmental-covariates-for-seaflow-cruises.html"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#loading-and-visualizing-data"><i class="fa fa-check"></i><b>4.1</b> Loading and visualizing data</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Processing data</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="ocean-environmental-covariates-for-seaflow-cruises" class="section level1 hasAnchor" number="4">
+<h1><span class="header-section-number">4</span> Ocean Environmental Covariates for Seaflow cruises<a href="ocean-environmental-covariates-for-seaflow-cruises.html#ocean-environmental-covariates-for-seaflow-cruises" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="loading-and-visualizing-data" class="section level2 hasAnchor" number="4.1">
+<h2><span class="header-section-number">4.1</span> Loading and visualizing data<a href="ocean-environmental-covariates-for-seaflow-cruises.html#loading-and-visualizing-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb154"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb154-1"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb154-1" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>) </span>
+<span id="cb154-2"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb154-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse) </span>
+<span id="cb154-3"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb154-3" tabindex="-1"></a><span class="fu">library</span>(cmap4r)</span>
+<span id="cb154-4"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb154-4" tabindex="-1"></a><span class="fu">library</span>(cruisedat)</span>
+<span id="cb154-5"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb154-5" tabindex="-1"></a></span>
+<span id="cb154-6"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb154-6" tabindex="-1"></a><span class="do">## Output directory</span></span>
+<span id="cb154-7"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb154-7" tabindex="-1"></a>here<span class="sc">::</span><span class="fu">i_am</span>(<span class="st">&quot;01-process-seaflow.Rmd&quot;</span>) <span class="do">## setwd(&quot;~/repos/process-data&quot;)</span></span></code></pre></div>
+<pre><code>## here() starts at /Users/sangwonh/repos/process-data</code></pre>
+<div class="sourceCode" id="cb156"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb156-1"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-1" tabindex="-1"></a>outputdir <span class="ot">=</span> <span class="st">&quot;output/seaflow-covariates&quot;</span> <span class="do">##outputdir = &quot;~/Dropbox/data/ocean/seaflow/2025-09-15&quot;</span></span>
+<span id="cb156-2"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-2" tabindex="-1"></a><span class="fu">dir.create</span>(outputdir, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb156-3"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-3" tabindex="-1"></a></span>
+<span id="cb156-4"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-4" tabindex="-1"></a><span class="do">## Helpers</span></span>
+<span id="cb156-5"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-5" tabindex="-1"></a><span class="do">## source(&quot;02-helpers.R&quot;)</span></span>
+<span id="cb156-6"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-6" tabindex="-1"></a></span>
+<span id="cb156-7"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-7" tabindex="-1"></a><span class="do">## Other setup</span></span>
+<span id="cb156-8"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb156-8" tabindex="-1"></a><span class="do">## colocalized_csvfile = file.path(outputdir, paste0(cruisename, &quot;-from-CMAP.csv&quot;))</span></span></code></pre></div>
+<p>We’ll procure the environmental covariates that go along with seaflow cruises,
+from Simons CMAP.</p>
+<p>What are all the tables and variables we need?</p>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-1" tabindex="-1"></a><span class="do">## Get authorization</span></span>
+<span id="cb157-2"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-2" tabindex="-1"></a>cmap4r<span class="sc">::</span><span class="fu">set_authorization</span>(<span class="at">reset =</span> <span class="cn">FALSE</span>, <span class="at">cmap_key =</span> <span class="st">&quot;ec7b8400-e5ae-11eb-88c6-c79daf4f0e4a&quot;</span>)</span>
+<span id="cb157-3"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-3" tabindex="-1"></a></span>
+<span id="cb157-4"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-4" tabindex="-1"></a><span class="do">## Get the cadtalog</span></span>
+<span id="cb157-5"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-5" tabindex="-1"></a>catalog <span class="ot">=</span> cmap4r<span class="sc">::</span><span class="fu">get_catalog</span>()</span>
+<span id="cb157-6"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-6" tabindex="-1"></a></span>
+<span id="cb157-7"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-7" tabindex="-1"></a><span class="do">## Do colocalization </span></span>
+<span id="cb157-8"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-8" tabindex="-1"></a><span class="do">## cmap4r::get_cruises()</span></span>
+<span id="cb157-9"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-9" tabindex="-1"></a>targetVars <span class="ot">=</span> catalog <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Table_Name <span class="sc">==</span> <span class="st">&quot;tblPisces_NRT&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Variable)</span>
+<span id="cb157-10"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-10" tabindex="-1"></a>dat <span class="ot">=</span> cmap4r<span class="sc">::</span><span class="fu">along_track</span>(<span class="st">&quot;MGL1704&quot;</span>, <span class="at">targetTables =</span> <span class="st">&quot;tblPisces_NRT&quot;</span>,</span>
+<span id="cb157-11"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-11" tabindex="-1"></a>                    <span class="at">targetVars =</span> <span class="st">&quot;Fe&quot;</span>, <span class="at">temporalTolerance =</span> <span class="fl">3.5</span>, <span class="at">latTolerance =</span> <span class="dv">5</span>,</span>
+<span id="cb157-12"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-12" tabindex="-1"></a>                    <span class="at">lonTolerance =</span> <span class="dv">5</span>, <span class="at">depthTolerance =</span> <span class="dv">10</span>, <span class="at">depth1 =</span> <span class="dv">0</span>, <span class="at">depth2 =</span> <span class="dv">10</span>) </span>
+<span id="cb157-13"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-13" tabindex="-1"></a>dat <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span>time, <span class="at">y=</span> Fe))</span>
+<span id="cb157-14"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-14" tabindex="-1"></a></span>
+<span id="cb157-15"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-15" tabindex="-1"></a><span class="do">## This will further be averaged into unique hours.</span></span>
+<span id="cb157-16"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-16" tabindex="-1"></a>dat <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">hourly_time =</span> lubridate<span class="sc">::</span><span class="fu">floor_date</span>(time, <span class="at">unit =</span> <span class="st">&quot;hours&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb157-17"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-17" tabindex="-1"></a>  <span class="fu">group_by</span>(hourly_time) <span class="sc">%&gt;%</span></span>
+<span id="cb157-18"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-18" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">Fe =</span> <span class="fu">mean</span>(Fe, <span class="at">na.rm=</span><span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb157-19"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-19" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span>hourly_time, <span class="at">y=</span> Fe))</span>
+<span id="cb157-20"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-20" tabindex="-1"></a></span>
+<span id="cb157-21"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-21" tabindex="-1"></a><span class="do">## Then, the coverage is assessed.</span></span>
+<span id="cb157-22"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-22" tabindex="-1"></a>dat <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y=</span>lat, <span class="at">x=</span>lon, <span class="at">col =</span> Fe))</span>
+<span id="cb157-23"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-23" tabindex="-1"></a></span>
+<span id="cb157-24"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-24" tabindex="-1"></a><span class="do">## repodir = &quot;~/repos/cruisedat&quot;</span></span>
+<span id="cb157-25"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-25" tabindex="-1"></a><span class="do">## outputdir = &quot;.&quot;</span></span>
+<span id="cb157-26"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb157-26" tabindex="-1"></a><span class="do">## dir.create(file.path(&quot;.&quot;, &quot;export&quot;), showWarnings = FALSE)</span></span></code></pre></div>
+<p>(It may not be practical to simply pull all data from all tables, as I used to
+back in 2019.)</p>
+<p>I realize there are at least three types of covariates.</p>
+<ul>
+<li><strong>Collected directly on the ship.</strong> Each cruise’s webpage shows a list of
+these. One probably needs to go over these manually, and selectively download
+them.
+<ul>
+<li>Also, there are measurements that are taken <em>sparsely</em> along a cruise track,
+sometimes at depth. These are only useful if they can be reasonably
+interpolated from the original resolution to the hourly level.</li>
+</ul></li>
+<li><strong>In situ drifter/float</strong>
+<ul>
+<li>Global Drifter Program: (1979-02-15 – 2019-08-07): <code>tblGlobalDrifterProgram</code></li>
+<li>Argo Float Core Profiles (1997-07-28 – 2024-06-09): <code>tblArgoCore_REP_Jun2024</code>
+<ul>
+<li>I’m guessing this is the latest updated version. Others include:
+<code>tblArgoCore_REP_Feb2024</code>, <code>tblArgoCore_REP_Nov2023</code>, <code>tblArgoCore_REP</code></li>
+</ul></li>
+<li>Argo Float Biogeochemical Profiles (2002-09-08 – 2024-06-08) <code>tblArgoBGC_REP_Jun2024</code>
+<ul>
+<li>I’m guessing this is the latest updated version. Others include:
+<code>tblArgoBGC_REP</code>, <code>tblArgoBGC_REP_Feb2024</code>, <code>tblArgoBGC_REP_Nov2023</code>,
+<code>tblArgoBGC_REP_Jun2023</code></li>
+</ul></li>
+<li>GEOTRACES Intermediate Data Product 2021 v2 - Seawater (2006-07-13 – 2018-11-22): <code>tblGeotraces_Seawater_IDP2021v2</code></li>
+<li>UCSD Argo Mixed Layer Depth Climatology Model 2022: <code>tblArgo_MLD_2022_Climatology</code>
+<ul>
+<li>Seems super relevant</li>
+<li>Also similar to <code>tblArgo_MLD_Climatology</code></li>
+</ul></li>
+</ul></li>
+<li><strong>Models (climatology)</strong>
+<ul>
+<li>Mercator-Pisces Biogeochemistry and Weekly Forecast (2011-12-31 to 2019-04-27): <code>tblPisces_NRT</code></li>
+<li>GOBAI-O2 Climatology v2.2 (Gridded Ocean Biogeochemistry from Artificial Intelligence - Oxygen)</li>
+<li>Mercator-Pisces Biogeochemistry Daily Forecast Nutrients (2022-01-01 to 2025-07-18): <code>tblPisces_Forecast_Nutrients</code></li>
+<li>Darwin Biogeochemistry 3 Day Averaged Model (1994-01-03 to 2015-12-30): <code>tblDarwin_Nutrient</code></li>
+<li>World Ocean Atlas 2013 v2 Climatology: <code>tblWOA_Climatology</code></li>
+<li>MODIS Chlorophyll Concentration (2002-07-04 to 2022-06-10): <code>tblModis_CHL</code></li>
+<li>MODIS Photosynthetically Available Radiation Daily 9km (2010-01-01 to 2022-03-07): <code>tblModis_PAR</code></li>
+</ul></li>
+<li><strong>Other less promising models</strong>
+<ul>
+<li>Mercator-Pisces Biogeochemistry Daily Forecast Car: (2022-01-01 – 2025-07-18): <code>tblPisces_Forecast_Car</code></li>
+<li>Mercator-Pisces Biogeochemistry Daily Forecast Pft: (2022-01-01 – 2025-07-18): <code>tblPisces_Forecast_Pft</code></li>
+<li>GOBAI-O2 Climatology v2.2 Gridded Ocean Biogeochemistry from Artificial
+Intelligence - Oxygen (UNknown time range): <code>tblGOBAI_O2_v2_2_Climatology</code></li>
+<li>Mercator-Pisces Biogeochemistry Daily Forecast Co2 (2022-01-01 to 2025-07-18): <code>tblPisces_Forecast_Co2</code></li>
+</ul></li>
+</ul>
+<p>So, a strategy is to go through these steps:
+- Manually co-localize the above tables and all sensible variables therein.
+- Examine the on-cruise measurements (from, e.g., <a href="https://simonscmap.com/catalog/cruises/MGL1704" class="uri">https://simonscmap.com/catalog/cruises/MGL1704</a> for Gradients 2), by
+1. Excluding any gated products (which will have lots of observations, thousands or tens of thousands),
+2. Exclude any things that are related to other non-Seaflow cytometers (IFCB,
+or imaging flow cytobot, which measures large particles above 3microns,
+which is larger than the small picophytoplankton we want to study),
+3. Exclude any datasets that have too few surface observations (fewer than 30
+rows altogether, or in the “DEPTH” visualization tab, fewer than 30-ish
+observations on the surface.)
+4. Exclude GRUMP altogether.</p>
+<p>Next, for every model/climatology or drift/floater dataset, we need to use a for-loop that goes over a time radius of {1 hr, 1 day, 3.5 days, 14 days}, and a latitude+longitude box of side lengths {0.1 degrees, 1 degrees, 2 degrees, 5 degrees}.</p>
+<p>(I have some code lying around (in github repository <code>sangwon-hyun/many-cruises</code>) that can do this.)</p>
+<p>For now, this code is borrowed from <code>02-covariates</code>.</p>
+<div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb158-1"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-1" tabindex="-1"></a>base <span class="ot">=</span> <span class="st">&quot;00-covariates&quot;</span></span>
+<span id="cb158-2"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-2" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, base, <span class="st">&quot;colocalize-params.R&quot;</span>))</span>
+<span id="cb158-3"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-3" tabindex="-1"></a></span>
+<span id="cb158-4"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-4" tabindex="-1"></a><span class="do">## Temporarily placing here (redundant)</span></span>
+<span id="cb158-5"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-5" tabindex="-1"></a>ids_final <span class="ot">=</span> <span class="fu">readRDS</span>(<span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data&quot;</span>, base, <span class="st">&quot;ids_final.RDS&quot;</span>))</span>
+<span id="cb158-6"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-6" tabindex="-1"></a>vars <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(<span class="st">&quot;/home/sangwonh/repos/cruisedat&quot;</span>, <span class="st">&quot;CMAP_vars_all_cruises.csv&quot;</span>)) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span>
+<span id="cb158-7"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-7" tabindex="-1"></a>vars <span class="ot">=</span> vars <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Table_Name =</span> <span class="fu">str_replace_all</span>(Table_Name,</span>
+<span id="cb158-8"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-8" tabindex="-1"></a>                                             <span class="at">pattern =</span> <span class="st">&quot;tblWind_NRT&quot;</span>,</span>
+<span id="cb158-9"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-9" tabindex="-1"></a>                                             <span class="at">replacement =</span> <span class="st">&quot;tblWind_NRT_deprecated&quot;</span>)) <span class="do">##%&gt;% kable() %&gt;% print()</span></span>
+<span id="cb158-10"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-10" tabindex="-1"></a>vars <span class="sc">%&gt;%</span> <span class="fu">kable</span>() <span class="sc">%&gt;%</span> <span class="fu">print</span>()</span>
+<span id="cb158-11"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-11" tabindex="-1"></a>nvar <span class="ot">=</span> <span class="fu">nrow</span>(vars)</span>
+<span id="cb158-12"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-12" tabindex="-1"></a><span class="do">## End of temporary</span></span>
+<span id="cb158-13"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-13" tabindex="-1"></a></span>
+<span id="cb158-14"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-14" tabindex="-1"></a>datlist <span class="ot">=</span> <span class="fu">mclapply</span>(ids_final, <span class="cf">function</span>(id){</span>
+<span id="cb158-15"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-15" tabindex="-1"></a></span>
+<span id="cb158-16"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-16" tabindex="-1"></a>  <span class="do">## Safely restarting cruises that don&#39;t exist</span></span>
+<span id="cb158-17"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-17" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">file.exists</span>(<span class="at">file =</span> <span class="fu">file.path</span>(outputdir, <span class="st">&quot;cmap-data&quot;</span>, <span class="fu">paste0</span>(id, <span class="st">&quot;-adaptive.RDS&quot;</span>)))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb158-18"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-18" tabindex="-1"></a></span>
+<span id="cb158-19"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-19" tabindex="-1"></a>  <span class="do">## Colocalize all variables</span></span>
+<span id="cb158-20"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-20" tabindex="-1"></a>  reslist <span class="ot">=</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span>nvar, <span class="cf">function</span>(ivar){</span>
+<span id="cb158-21"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-21" tabindex="-1"></a>    <span class="fu">tryCatch</span>({</span>
+<span id="cb158-22"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-22" tabindex="-1"></a></span>
+<span id="cb158-23"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-23" tabindex="-1"></a>      varname <span class="ot">=</span> vars <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Variable) <span class="sc">%&gt;%</span> .[ivar]</span>
+<span id="cb158-24"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-24" tabindex="-1"></a>      tabname <span class="ot">=</span> vars <span class="sc">%&gt;%</span> <span class="fu">pull</span>(Table_Name) <span class="sc">%&gt;%</span> .[ivar]</span>
+<span id="cb158-25"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-25" tabindex="-1"></a></span>
+<span id="cb158-26"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-26" tabindex="-1"></a>      <span class="cf">if</span>(tabname <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;tblWOA_Climatology&quot;</span>, <span class="st">&quot;tblPisces_NRT&quot;</span>, <span class="st">&quot;tblCHL_REP&quot;</span>, <span class="st">&quot;tblModis_PAR&quot;</span>)){</span>
+<span id="cb158-27"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-27" tabindex="-1"></a>        param <span class="ot">=</span> list_of_params[[tabname]]</span>
+<span id="cb158-28"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-28" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb158-29"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-29" tabindex="-1"></a>        param <span class="ot">=</span> list_of_params[[<span class="st">&quot;other&quot;</span>]]</span>
+<span id="cb158-30"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-30" tabindex="-1"></a>      }</span>
+<span id="cb158-31"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-31" tabindex="-1"></a>      <span class="cf">for</span>(isize <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>){</span>
+<span id="cb158-32"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-32" tabindex="-1"></a></span>
+<span id="cb158-33"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-33" tabindex="-1"></a>        <span class="do">## Increase the radius</span></span>
+<span id="cb158-34"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-34" tabindex="-1"></a>        <span class="cf">if</span>(isize <span class="sc">&gt;</span> <span class="dv">1</span>) param<span class="sc">$</span>latTolerance <span class="ot">=</span> param<span class="sc">$</span>latTolerance <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">4</span></span>
+<span id="cb158-35"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-35" tabindex="-1"></a>        <span class="cf">if</span>(isize <span class="sc">&gt;</span> <span class="dv">1</span>) param<span class="sc">$</span>lonTolerance <span class="ot">=</span> param<span class="sc">$</span>lonTolerance <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span> <span class="dv">4</span></span>
+<span id="cb158-36"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-36" tabindex="-1"></a></span>
+<span id="cb158-37"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-37" tabindex="-1"></a>        <span class="do">## Perform the colocalization</span></span>
+<span id="cb158-38"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-38" tabindex="-1"></a>        dt <span class="ot">=</span> <span class="fu">along_track</span>(id,</span>
+<span id="cb158-39"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-39" tabindex="-1"></a>                         <span class="at">targetTables =</span> tabname,</span>
+<span id="cb158-40"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-40" tabindex="-1"></a>                         <span class="at">targetVars =</span> varname,</span>
+<span id="cb158-41"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-41" tabindex="-1"></a>                         <span class="at">temporalTolerance =</span> param<span class="sc">$</span>temporalTolerance,</span>
+<span id="cb158-42"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-42" tabindex="-1"></a>                         <span class="at">latTolerance =</span> param<span class="sc">$</span>latTolerance,</span>
+<span id="cb158-43"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-43" tabindex="-1"></a>                         <span class="at">lonTolerance =</span> param<span class="sc">$</span>lonTolerance,</span>
+<span id="cb158-44"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-44" tabindex="-1"></a>                         <span class="at">depthTolerance =</span> param<span class="sc">$</span>depthTolerance,</span>
+<span id="cb158-45"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-45" tabindex="-1"></a>                         <span class="at">depth1 =</span> param<span class="sc">$</span>depth1,</span>
+<span id="cb158-46"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-46" tabindex="-1"></a>                         <span class="at">depth2 =</span> param<span class="sc">$</span>depth2) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>() </span>
+<span id="cb158-47"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-47" tabindex="-1"></a>        dt <span class="ot">=</span> dt <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">!</span><span class="fu">contains</span>(<span class="st">&quot;_std&quot;</span>))</span>
+<span id="cb158-48"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-48" tabindex="-1"></a></span>
+<span id="cb158-49"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-49" tabindex="-1"></a>        <span class="do">## Check the missing proportion</span></span>
+<span id="cb158-50"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-50" tabindex="-1"></a>        dt_missing_prop <span class="ot">=</span> dt <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="at">naprop =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(<span class="sc">!!</span><span class="fu">sym</span>(varname)))) <span class="sc">%&gt;%</span> <span class="fu">unlist</span>()</span>
+<span id="cb158-51"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-51" tabindex="-1"></a>        <span class="do">## print(dt_missing_prop)</span></span>
+<span id="cb158-52"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-52" tabindex="-1"></a>        <span class="cf">if</span>(dt_missing_prop <span class="sc">==</span> <span class="dv">0</span>) <span class="cf">break</span></span>
+<span id="cb158-53"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-53" tabindex="-1"></a>      }</span>
+<span id="cb158-54"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-54" tabindex="-1"></a>      <span class="fu">return</span>(dt)</span>
+<span id="cb158-55"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-55" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e){</span>
+<span id="cb158-56"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-56" tabindex="-1"></a>      <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb158-57"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-57" tabindex="-1"></a>    })</span>
+<span id="cb158-58"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-58" tabindex="-1"></a>  })</span>
+<span id="cb158-59"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-59" tabindex="-1"></a>  lens <span class="ot">=</span> reslist <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map</span>(. <span class="sc">%&gt;%</span> <span class="fu">length</span>()) <span class="sc">%&gt;%</span> <span class="fu">unlist</span>()</span>
+<span id="cb158-60"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-60" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">any</span>(lens <span class="sc">==</span> <span class="dv">0</span>)){ reslist <span class="ot">=</span> reslist[<span class="sc">-</span><span class="fu">which</span>(lens <span class="sc">==</span> <span class="dv">0</span>)] }</span>
+<span id="cb158-61"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-61" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(reslist) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb158-62"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-62" tabindex="-1"></a>    fullres <span class="ot">=</span> reslist <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">reduce</span>(full_join, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;time&quot;</span>, <span class="st">&quot;lon&quot;</span>, <span class="st">&quot;lat&quot;</span>))</span>
+<span id="cb158-63"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-63" tabindex="-1"></a>    fullres <span class="ot">=</span> fullres <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">!</span><span class="fu">contains</span>(<span class="st">&quot;_std&quot;</span>))</span>
+<span id="cb158-64"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-64" tabindex="-1"></a>    <span class="fu">saveRDS</span>(fullres, <span class="at">file =</span> <span class="fu">file.path</span>(outputdir, <span class="st">&quot;cmap-data&quot;</span>, <span class="fu">paste0</span>(id, <span class="st">&quot;-adaptive.RDS&quot;</span>)))</span>
+<span id="cb158-65"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-65" tabindex="-1"></a>    <span class="do">## saveRDS(fullres, file = file.path(outputdir, &quot;cmap-data&quot;, paste0(id, &quot;-adaptive.RDS&quot;)))</span></span>
+<span id="cb158-66"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-66" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb158-67"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-67" tabindex="-1"></a>  }</span>
+<span id="cb158-68"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-68" tabindex="-1"></a>  <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb158-69"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb158-69" tabindex="-1"></a>}, <span class="at">mc.cores =</span> <span class="fu">length</span>(ids_final), <span class="at">mc.preschedule =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p>This is what I <em>used</em> to do; the CMAP_vars are variables that were used for the flowmix paper.</p>
+<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-1" tabindex="-1"></a><span class="do">## This is the *superset* of all the relevant data tables and variables</span></span>
+<span id="cb159-2"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-2" tabindex="-1"></a>dat <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(outputdir, <span class="st">&quot;CMAP_vars.csv&quot;</span>)) <span class="do">## This needs to be updated.</span></span>
+<span id="cb159-3"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-3" tabindex="-1"></a></span>
+<span id="cb159-4"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-4" tabindex="-1"></a><span class="do">## Get the duplicated</span></span>
+<span id="cb159-5"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-5" tabindex="-1"></a>dat <span class="ot">=</span> <span class="fu">unique</span>(dat[,<span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Table_Name&quot;</span>)])</span>
+<span id="cb159-6"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-6" tabindex="-1"></a>dat <span class="ot">=</span> <span class="fu">apply</span>(dat, <span class="dv">2</span>, as.character)</span>
+<span id="cb159-7"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-7" tabindex="-1"></a></span>
+<span id="cb159-8"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-8" tabindex="-1"></a><span class="do">## Make some manual changes</span></span>
+<span id="cb159-9"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-9" tabindex="-1"></a>dat[<span class="dv">15</span>, <span class="st">&quot;Table_Name&quot;</span>] <span class="ot">=</span> <span class="st">&quot;tblCHL_REP&quot;</span></span>
+<span id="cb159-10"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-10" tabindex="-1"></a>dat <span class="ot">=</span> dat[<span class="sc">-</span><span class="fu">which</span>(dat[,<span class="st">&quot;Variable&quot;</span>] <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;disp_bw_adt&quot;</span>, <span class="st">&quot;ftle_bw_adt&quot;</span>)),]</span>
+<span id="cb159-11"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-11" tabindex="-1"></a><span class="do">## ADT and SLA are different, per:</span></span>
+<span id="cb159-12"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-12" tabindex="-1"></a><span class="do">## https://www.aviso.altimetry.fr/en/data/data-access/las-live-access-server/lively-data/2004/june-15-2004-sla-vs-adt.html</span></span>
+<span id="cb159-13"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-13" tabindex="-1"></a><span class="do">## They seem to have removed adt from the dataset; it doesn&#39;t exist.</span></span>
+<span id="cb159-14"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-14" tabindex="-1"></a></span>
+<span id="cb159-15"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-15" tabindex="-1"></a><span class="do">## Some basic checks</span></span>
+<span id="cb159-16"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-16" tabindex="-1"></a><span class="fu">assert_that</span>(<span class="fu">all</span>(<span class="fu">check_with_catalog</span>(dat[,<span class="st">&quot;Variable&quot;</span>],<span class="st">&quot;varName&quot;</span>,</span>
+<span id="cb159-17"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-17" tabindex="-1"></a>                                   <span class="at">apiKey =</span> apiKey)))</span>
+<span id="cb159-18"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-18" tabindex="-1"></a><span class="fu">assert_that</span>(<span class="fu">all</span>(<span class="fu">check_with_catalog</span>(dat[,<span class="st">&quot;Table_Name&quot;</span>],<span class="st">&quot;tableName&quot;</span>,</span>
+<span id="cb159-19"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-19" tabindex="-1"></a>                                   <span class="at">apiKey =</span> apiKey)))</span>
+<span id="cb159-20"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-20" tabindex="-1"></a></span>
+<span id="cb159-21"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-21" tabindex="-1"></a><span class="do">## Not sure why salinity is not in here, but include it.</span></span>
+<span id="cb159-22"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-22" tabindex="-1"></a>dat <span class="ot">=</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="st">&quot;sss&quot;</span>, <span class="st">&quot;tblSSS_NRT&quot;</span>), dat)</span>
+<span id="cb159-23"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-23" tabindex="-1"></a>varNames <span class="ot">=</span> dat[,<span class="st">&quot;Variable&quot;</span>]</span>
+<span id="cb159-24"><a href="ocean-environmental-covariates-for-seaflow-cruises.html#cb159-24" tabindex="-1"></a>tableNames <span class="ot">=</span> dat[,<span class="st">&quot;Table_Name&quot;</span>]</span></code></pre></div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="binning-five-gradients-cruises.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
+});
+});
+</script>
+
+</body>
+
+</html>

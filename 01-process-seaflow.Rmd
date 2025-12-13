@@ -1,12 +1,4 @@
----
-title: "Processing Seaflow data (only Gradients 1 through 5)"
-author: "Sangwon Hyun"
-date: "`r Sys.Date()`"
-description: "This process Seaflow marine microbe flow cytometry data processing."
-output:
-  bookdown::gitbook
----
-
+# Processing Seaflow data (only Gradients 1 through 5)
 
 ```{r}
 ## Libraries
@@ -24,7 +16,7 @@ outputdir = "output/seaflow" ##outputdir = "~/Dropbox/data/ocean/seaflow/2025-09
 dir.create(outputdir, showWarnings = FALSE)
 
 ## Helpers
-source("01-process-seaflow-helpers.R")
+source("01-helpers.R")
 
 ## Where the original, particle-level data is
 ## (Change to your Dropbox/data directory locally.)
@@ -36,7 +28,7 @@ In this document, we will clean and bin the particle-level seaflow datasets
 (only Gradients 1 through 5).
 
 
-# Setup
+## Setup
 
 This is the overall setup for gridding.
 
@@ -165,7 +157,7 @@ for(cruisename in cruises){
 ```
 
 
-# Data cleaning  {.tabset}
+## Data cleaning notes
 
 Here are some points that came up while cleaning data.
 
@@ -182,7 +174,7 @@ Here are some points that came up while cleaning data.
 5. TODO: G5 (`TN412_130`) requires a bit more work. Some cytograms need to be
    visualized and removed manually.
 
-## Gradients 3 
+## Cleaning Gradients 3 
 
 
 ```{r, clean-g3, fig.width = 10, fig.height = 10}
@@ -294,7 +286,7 @@ write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
 cat("wrote to", outfile, fill=TRUE)
 ```
 
-## Other Gradients cruises
+## Cleaning other Gradients cruises
 
 Use a similar pipeline: (1) remove edge points in fsc and chl, (2) visually
 remove weird time points.
@@ -448,7 +440,7 @@ for(cruisename in cruises){
 ```
 
 
-# Code to visualize entire 3d cytograms.
+## Code to visualize entire 3d cytograms.
 
 Will delete eventually.
 
