@@ -97,7 +97,6 @@ dimslist = list(c(1:2), c(2:3), c(3,1))
 
 
 my_plotter <- function(ylist, countslist, dates, plot_title){
-  ## tt_end = length(datobj$ylist)
   gg1 = plot_1d_temp(ylist=ylist,
                      countslist = countslist,
                      time = dates) +
@@ -116,3 +115,65 @@ my_plotter <- function(ylist, countslist, dates, plot_title){
                         size = 14)+
     theme(plot.margin = unit(c(.6, 0.5, 0.5, 0.5), "cm"))
     }
+
+
+
+my_marginal_plotter <- function(ylist, biomass_list, dates = NULL){
+
+  plotlist = lapply(1:3, function(idim){
+    datobj_1d = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = idim)
+    flowtrend::plot_1d(ylist = datobj_1d$ylist,
+                       countslist = datobj_1d$countslist,  bin = TRUE,
+                       x = dates) +
+      scale_fill_gradientn(colours = c("white", "black", "yellow", "red")) +
+      ggtitle(cruisename) +
+      ylab(c("fsc (forward scatter)", "chl", "pe")[idim])
+  })
+  cowplot::plot_grid(plotlist = plotlist, ncol = 1) %>% print()
+}
+
+
+
+#' @param dimname must be one of c("fsc_small", "chl_small", "pe")
+#' @param min_or_max must be one of c("min", "max")
+#' @param slack if zero, only remove edge bin; if 1, remove two edge bins.
+my_edge_bin_remove <- function(ylist, biomass_list, dimname, min_or_max, slack = 0){
+
+  ## Basic check
+  stopifnot(dimname %in% c("fsc_small", "chl_small", "pe"))
+  stopifnot(min_or_max %in% c("min", "max"))
+  dimname = paste0(dimname, "_coord")
+
+  newer_biomass_list = biomass_list
+  newer_ylist = ylist
+
+  ## Decide on which bin to remove
+  if(min_or_max == "min"){
+    bin_to_remove = ylist %>% sapply(function(one_y) min(one_y[,dimname])) %>% median()
+    bin_to_remove = bin_to_remove + slack
+  }
+  if(min_or_max == "max"){
+    bin_to_remove = ylist %>% sapply(function(one_y) max(one_y[,dimname])) %>% median()
+    bin_to_remove = bin_to_remove - slack
+  }
+
+  ## Remove that bin
+  TT = length(ylist)
+  for(tt in 1:TT){
+    one_count = biomass_list[[tt]]
+    one_y = ylist[[tt]]
+    if(min_or_max == "min"){
+      irow_to_remove = which(one_y[,dimname] <= bin_to_remove)
+    }
+    if(min_or_max == "max"){
+      irow_to_remove = which(one_y[,dimname] >= bin_to_remove)
+    }
+    if(length(irow_to_remove) > 0){
+      newer_ylist[[tt]] = one_y[-irow_to_remove,]
+      newer_biomass_list[[tt]] = one_count[-irow_to_remove]
+    }
+  }
+
+  return(list(ylist = newer_ylist,
+              biomass_list = newer_biomass_list))
+}
