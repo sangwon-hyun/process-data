@@ -1,5 +1,5 @@
 ## How to download covariates from Simons CMAP in slurm
-### Using 00-covariates-v2-download
+*(Using 00-covariates-v2-download)*
 
 ### Hummingbird setup:
 * Connect to `vpn.ucsc.edu` through Cisco Secure Client
