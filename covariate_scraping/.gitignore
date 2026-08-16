@@ -1,6 +1,9 @@
 # API key
 .Renviron
 
-# Folder of plots
+# Folders of plots
 Plots/
+reproducible/plots
 
+# Folder of data
+reproducible/plots
