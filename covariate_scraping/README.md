@@ -1,4 +1,5 @@
 ## How to download covariates from Simons CMAP in slurm
+*(Using 00-covariates-v2-download)*
 
 ### Hummingbird setup:
 * Connect to `vpn.ucsc.edu` through Cisco Secure Client
@@ -10,4 +11,4 @@
 Run `sbatch --export=cruise_id=<CRUISE_ID> 00-covariates-v2-download.slurm` with the CRUISE_ID you want to colocalize. 
 You may submit many jobs consecutively by running this command with different cruise IDs.
 
-To test it one one cruise and one variable, run `sbatch --export=cruise_id=<CRUISE_ID> --array=1 00-covariates-download.slurm`
+To test it on one cruise and one variable, run `sbatch --export=cruise_id=<CRUISE_ID> --array=1 00-covariates-download.slurm`
