@@ -1,19 +1,10 @@
 ---
 title: "Processing data"
 author: "Sangwon Hyun and authors"
-date: "`r Sys.Date()`"
-site: bookdown::bookdown_site
-knit: litr::render 
-documentclass: book
-output:
-  bookdown::gitbook
-rmd_files: ["index.Rmd", "01-process-seaflow.Rmd", "02-process-seaflow-covariates.Rmd"]
+date: "`r Sys.Date()`" 
 ---
 
 # Introduction
 
 This workflow procures and processes ocean flow cytometry data.
 
-```{r render, eval = FALSE}
-bookdown::render_book("index.Rmd")
-```

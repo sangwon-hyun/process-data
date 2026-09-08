@@ -1,15 +1,7 @@
 ---
 title: "Data imputation and visualization for Environmental Factors"
 author: "Sangwon Hyun"
-date: "2026-08-18"
-format:
-  html:
-    toc: true
-    toc-depth: 3
-    code-fold: true
-    embed-resources: true
-    theme: cosmo
-    highlight-style: tango
+date: "`r Sys.Date()`" 
 execute:
   warning: false
   message: false

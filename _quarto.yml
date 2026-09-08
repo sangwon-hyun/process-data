@@ -18,4 +18,8 @@ format:
     toc: true
     toc-depth: 3
     code-fold: true
-    embed-resources: true
+
+execute:
+  warning: false
+  message: false
+  freeze: auto
