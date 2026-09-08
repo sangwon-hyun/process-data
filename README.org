@@ -1,18 +1,29 @@
 #+title: Processing data
 
 
+* Rendering instructions
+
+Use ~quarto render~ on command line from the current directory.
+
+This renders all code to a book under ~./_book~
+
 * Summary
+
 This repository contains the workflow for processing ocean data.
 
 The bookdown can be found here:
 [[_book/index.html]]
 
-The scripts (named e.g. ~01-process-cruise-data.Rmd~) are to be run in order of
+The scripts (named e.g. ~01-process-cruise-data.qmd~) are to be run in order of
 the numbers on the filenames.
-- The output will be saved under =~/output=.
+
+- The output will be saved under ~outputdir~.
+  - For ~01-process-seaflow.qmd~, this is ~"~/Dropbox/data/ocean/seaflow~.
+  - For ~02-process-seaflow-covariates.qmd~ and ~03-add-onboard-covariates.qmd~, this is ~"~/Dropbox/data/ocean/seaflow-covariates~.
 - The data should be located in a directory that should be assigned to the R
   variable ~raw_data_dir~.
 - The current raw flow cytometry data is placed in a Dropbox folder located
   here:
   - [[https://www.dropbox.com/scl/fo/0xjpv63xphe3cycfq8mt4/AKxaHGNacELmzuv9idwsToA?rlkey=srubu3w095hssfegq17hqpkj3&dl=0][Dropbox folder for raw seaflow data]]; use a subdirectory such as
     ~particle-data-2025-11-21~.
+- The current raw

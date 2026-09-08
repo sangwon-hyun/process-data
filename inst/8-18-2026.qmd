@@ -51,6 +51,18 @@ drawmat_precise_ggplot <- function(distmat, colours = c("blue", "red"),
     )
   return(p)
 }
+
+#################
+## Directories ##
+#################
+
+cruisename = "MGL1704"
+
+## contains files such as X-MGL1704.csv, from Dane's script
+datadir = "~/Dropbox/data/ocean/seaflow-covariates" 
+
+## Output directory for the imputed hourly covariates
+outputdir = "~/repos/process-data/output/seaflow-covariates" 
 ```
 
 ---
@@ -64,7 +76,6 @@ Load the cruise dataset and scale numeric features.
 
 ## Load data
 X <- read.csv("~/Downloads/X-MGL1704.csv") %>% as_tibble()
-print(head(X))
 
 ## Notes (8/17/2025):
 ## (1) PAR resolution is: 0.25 degree vs 1 degree
@@ -77,12 +88,60 @@ lat0 <- X %>% pull(lat)
 lon0 <- X %>% pull(lon)
 varnames <- X %>% select(-c("time", "lat", "lon")) %>% colnames()
 
-X_scaled <- X %>%
-  select(-lat, -lon, -time) %>%
-  scale() %>% 
-  as_tibble()
 
-X_combined <- cbind(time = time0, X_scaled)
+## Remove absurdly large variables
+means = X %>% select(-time, -lat, -lon) %>%
+  summarise(across(everything(), ~mean(.x, na.rm = TRUE))) 
+sds = X %>% select(-time, -lat, -lon) %>%
+  summarise(across(everything(), ~sd(.x, na.rm = TRUE))) 
+apply(X[-c(1,2,3)], 2, mean, na.rm=TRUE)   %>% sort(decreasing=TRUE)  %>% plot()
+
+
+## Filter out which variables have really big means
+thresh = 1E5
+means[,which(means>thresh)] %>% as.list()
+sds[,which(sds>thresh)] %>% as.list()
+somenames = means[,which(means>1E10 & sds > 1E10)] %>% names()
+X[,somenames] %>%
+  add_column(time = time0) %>%
+  pivot_longer(-time)  %>% 
+  ggplot() +
+  geom_point(aes(x=time, y = value, group = name), size = .5) +
+  facet_wrap(~name, scale = 'free_y')
+
+
+## remove these variables
+X = X %>% select(-all_of(somenames))
+
+
+## Store the scaling information
+scaleobj <- X %>% select(-lat, -lon, -time) %>% scale() 
+mean_val <- attr(scaleobj, "scaled:center") %>% unname()
+sd_val <- attr(scaleobj, "scaled:scale") %>% unname()
+
+
+## Double check that scaling is sound (by reversing the scaling)
+scaled_data = as.matrix(scaleobj)
+unscaled_data <- sweep(scaled_data, 2, sd_val, `*`)
+unscaled_data <- sweep(unscaled_data, 2, mean_val, `+`)
+orig_matrix <- as.matrix(X %>% select(-time, -lat, -lon))
+print(range(unscaled_data - orig_matrix, na.rm=TRUE))
+max_diffs <- apply(abs(unscaled_data - orig_matrix), 2, max, na.rm = TRUE) %>% sort()
+plot(max_diffs, type = "p", xlab = "Variables (Sorted)",
+     ylab = "Max Absolute Difference",
+     main = "Reconstruction Error per Variable")
+abline(h = 0, col = "red", lty = 2)
+
+
+## Save the scaling information
+filename = paste0(cruisename, "-scaling-info.RDS")
+X_scaled = scaled_data
+saveRDS(list(X_before_scaling = X,
+             X_after_scaling = X_scaled,
+             scaleobj = scaleobj,
+             X_means = mean_val,
+             X_sds = sd_val),
+        file = file.path("~/repos/process-data/output/seaflow", filename))
 ```
 
 Plot the initial scaled variables across time:
@@ -93,6 +152,7 @@ Plot the initial scaled variables across time:
 #| fig-height: 4
 #| fig-cap: "Raw scaled variables over time"
 
+X_combined <- cbind(time = time0, X_scaled)
 X_combined %>% 
   pivot_longer(-time) %>% 
   ggplot() +
@@ -294,9 +354,24 @@ X_imputed_hourly %>%
   theme_minimal()
 ```
 
+
+## 6.Saving
+
+Save the imputed covariates in a single file.
+
+```{r undo-scaling-and-save}
+write.csv(X_imputed_hourly, file = file.path(outputdir, "X-", cruisename, "-from-cmap-imputed-and-scaled.csv"))
+```
+
+TODO:
+- [ ] Move the files to repos/process-data
+- [ ] Output should also be in here.
+
+
+
 ---
 
-## 6. Principal Component Analysis (PCA)
+## 7. Principal Component Analysis (PCA)
 
 Run PCA on observation time points across all imputed variables.
 

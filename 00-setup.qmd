@@ -1,0 +1,22 @@
+---
+title: "Setup for this book"
+author: "Sangwon Hyun"
+date: "2026-9-3"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    embed-resources: true
+    theme: cosmo
+    highlight-style: tango
+execute:
+  warning: false
+  message: false
+---
+
+
+## Setup for this book goes here
+
+
+Setup goes here.

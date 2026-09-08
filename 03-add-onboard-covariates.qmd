@@ -1,0 +1,567 @@
+---
+title: "Adding on-board covariates"
+author: "Sangwon Hyun"
+date: "2026-9-3"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    embed-resources: true
+    theme: cosmo
+    highlight-style: tango
+execute:
+  warning: false
+  message: false
+---
+
+## 1. Environment Setup & Helper Functions
+
+In this section, we load the necessary R packages and set up matrix visualizers.
+
+```{r} 
+#| label: setup-packages
+
+## Core tidyverse packages
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(scales)
+
+## Auxiliary packages
+library(broom)
+library(janitor)
+library(softImpute)
+library(kableExtra)
+
+#################
+## Directories ##
+#################
+
+## contains files such as X-MGL1704.csv, from Dane's script
+datadir = "~/Dropbox/data/ocean/seaflow-covariates" 
+##datadir = "~/Downloads" 
+
+## Output directory for the imputed hourly covariates
+## outputdir = "~/repos/process-data/output/seaflow-covariates" 
+outputdir = "~/Dropbox/data/ocean/seaflow-covariates" 
+
+
+##############################
+## Convenience functions ####
+##############################
+## cat_tab <- function(title, level = 3) {
+##   cat(strrep("#", level), title, "\n\n")
+## }
+cat_tab <- function(title, level = 3) {
+  # The leading "\n\n" forces a clean break from whatever printed previously
+  cat("\n\n", strrep("#", level), " ", title, "\n\n", sep = "")
+}
+
+cat_image <- function(filename) {
+  cat(sprintf("![](%s)\n\n", filename))
+}
+
+
+make_html_table <- function(mytab, table_caption = NULL) {
+  mytab |>
+    kable(
+      format = "html", 
+      digits = 2, 
+      align = "c",
+      caption = table_caption
+    ) |>
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE
+    )
+}
+
+```
+
+I'll introduce an interpolation function for sunlight, since the values are
+missing in several of the gradients cruises.
+
+Specifically, I'll fill in from *the same time* on the surrounding days (e.g.,
+±24h, ±48h).
+
+(I'll also linearly fill in the other covariates, for completeness.)
+
+
+
+```{r impute-helpers}
+##' Fill in missing sunlight (PAR) and covariates using multi-day offsets.
+##'
+##' First ensures a continuous hourly time grid, then imputes missing
+##' Photosynthetically Active Radiation (\code{par}) values by averaging
+##' measurements at exact multi-day offsets (with optional hourly slack), and
+##' linearly interpolates other numeric columns specifically at the newly
+##' imputed PAR timestamps.
+##'
+##' @param geodat A data frame or tibble containing a datetime column named \code{time}, 
+##'   a numeric column named \code{par}, and any other relevant numeric covariates.
+##' @param days Numeric. The number of days before and after to target for strict 
+##'   matching (e.g., \code{days = 1} checks $\pm 24$h, \code{days = 2} checks $\pm 24$h and $\pm 48$h). 
+##'   Default is `1`.
+##' @param slack Numeric. The number of hours of slack (buffer window) to add and subtract 
+##'   around each day offset. Default is `0` (strict exact offsets only).
+##'
+##' @return A tibble with a complete hourly sequence of timestamps from the minimum to 
+##'   maximum time range, containing the updated \code{par_imputed} column and linearly 
+##'   interpolated values for other numeric variables at the imputed PAR rows.
+##'
+##' @import dplyr
+##' @importFrom zoo na.approx
+##' @export
+fill_in_par <- function(geodat, days = 1, slack = 0) {
+  
+  ## 0. Ensure a continuous hourly grid from the earliest to latest time
+  geodat <- tibble(
+    time = seq(min(geodat$time, na.rm = TRUE), 
+               max(geodat$time, na.rm = TRUE), 
+               by = "1 hour")
+  ) %>% 
+    left_join(geodat, by = "time")
+  
+  n <- nrow(geodat)
+  
+  ## 1. Generate strict hour offsets (e.g., ±24h, ±48h)
+  day_offsets <- c(seq(-days, -1), seq(1, days))
+  strict_hour_offsets <- day_offsets * 24
+  
+  ## 2. Generate slack hour offsets
+  slack_hours <- seq(-slack, slack, by = 1)
+  all_hour_offsets <- unlist(lapply(strict_hour_offsets, function(d_hr) {
+    d_hr + slack_hours
+  })) %>% unique()
+  
+  ## Helper to pull values at specific hour shifts for every row simultaneously
+  get_offset_matrix <- function(hour_offsets) {
+    sapply(hour_offsets, function(h) {
+      row_indices <- seq_len(n) + h
+      valid <- row_indices >= 1 & row_indices <= n
+      res <- rep(NA_real_, n)
+      res[valid] <- geodat$par[row_indices[valid]]
+      res
+    })
+  }
+  
+  strict_mat <- get_offset_matrix(strict_hour_offsets)
+  slack_mat  <- get_offset_matrix(all_hour_offsets)
+  
+  ## 3. Compute row means
+  impute_strict <- rowMeans(strict_mat, na.rm = TRUE)
+  impute_strict[is.nan(impute_strict)] <- NA_real_
+  
+  impute_slack <- rowMeans(slack_mat, na.rm = TRUE)
+  impute_slack[is.nan(impute_slack)] <- NA_real_
+  
+  impute_val <- coalesce(impute_strict, impute_slack)
+  
+  ## 4. Extract the exact contributing values used for each row as a clean list-column
+  ## (Pulls the row from strict_mat if available, otherwise uses slack_mat)
+  contributing_list <- lapply(seq_len(n), function(i) {
+    if (!is.na(impute_strict[i])) {
+      vals <- strict_mat[i, ]
+    } else {
+      vals <- slack_mat[i, ]
+    }
+    vals[!is.na(vals)] ## Keep only valid, non-NA contributing values
+  })
+  
+  ## 5. Assemble final data frame
+  geodat <-
+    geodat %>% 
+    mutate(
+      contributing_values = contributing_list,
+      par_imputed = coalesce(par, impute_val)
+    ) %>%
+    select(-contributing_values)
+
+
+  ## 6. Fills in the rest of the values using linear interpolation.
+  geodat = geodat %>%
+    mutate(
+    is_par_imputed = is.na(par) & !is.na(par_imputed),
+    across(
+      where(is.numeric) & !matches("time|par|par_imputed|is_par_imputed"),
+      ~ {
+        interpolated <- zoo::na.approx(.x, na.rm = FALSE)
+        ifelse(is_par_imputed, interpolated, .x)
+      }
+    )
+  ) %>% 
+  select(-is_par_imputed)
+  
+  return(geodat)
+}
+
+
+##' Visualize Imputed vs. Original PAR
+##'
+##' Generates a ggplot displaying the original Photosynthetically Active 
+##' Radiation (\code{par}) values alongside the newly imputed version 
+##' (\code{par_imputed}) over time.
+##'
+##' @param geodat A data frame or tibble containing \code{time}, \code{par}, 
+##'   and \code{par_imputed} columns (typically the output of \code{fill_in_par()}).
+##' @param cruisename Character string. Optional name of the cruise to display 
+##'   in the plot title. Default is an empty string.
+##'
+##' @return A \code{ggplot} object showing the overlay of original and imputed PAR.
+##'
+##' @import ggplot2
+##' @export
+make_par_plot <- function(geodat, cruisename = ""){
+  par_plot <- geodat %>% 
+    ggplot() +
+    geom_line(aes(x=time, y=par_imputed), col = 'red', size = rel(2)) +
+    geom_line(aes(x=time, y = par), col = 'black', size = rel(2)) +
+      ggtitle(paste0("Imputing PAR for ", cruisename))  +
+    scale_x_datetime(
+      date_breaks = "1 day", 
+      date_labels = "%b %d" # Format as "Month Day" (e.g., Sep 04), change to "%Y-%m-%d" if you want the year
+    ) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+  return(par_plot)
+}
+
+## Color scale for line plots
+custom_colors <- c(
+    "lat"          = "black",
+    "lon"          = "grey50",
+    "temp"         = "#E64B35", # Warm red
+    "par"          = "#F39C12", # Gold / yellow
+    "salinity"     = "#2980B9", # Blue
+    "conductivity" = "#8E44AD"  # Purple
+)
+onboard_vars = names(custom_colors) 
+```
+
+
+---
+
+## Loading and cleaning covariates collected aboard the cruises
+
+Load the handful of environmental covariates from on-board the cruise.
+
+```{r load-onboard}
+#| fig-width: 20
+#| fig-height: 12
+
+
+raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"
+
+list.files(raw_data_dir)
+cruises = c("SCOPE_16", ## G1
+            "MGL1704", ## G2
+            "KM1906", ## G3
+            "TN397_740", ## G4
+            "TN412_130") ## G5
+
+datlist = lapply(cruises, function(cruisename){
+
+  ## Load sunlight (par), temperature, conductivity, salinity
+  geodat =
+    file.path(raw_data_dir, cruisename, "dash", paste0(cruisename, "-geo.tsdata"))   %>%
+    read.csv(sep = "\t", skip = 6)  %>% as_tibble() %>%
+    mutate(time = lubridate::as_datetime(time))
+  
+  geodat =
+    geodat %>%
+    mutate(hour_group = floor_date(time, "1 hour")) %>%
+    group_by(hour_group) %>%
+    summarise(across(where(is.numeric), \(x) mean(x, na.rm=TRUE))) %>%
+    rename(time = hour_group)
+  
+  ## Manual adjustments
+  if(cruisename == "MGL1704"){
+
+
+    geodat = geodat %>%
+      mutate(
+          ## 1. Turn the bad value into NA
+          salinity = if_else(time %in% 
+                             c(lubridate::as_datetime("2017-06-05 01:00:00"),
+                               lubridate::as_datetime("2017-06-05 02:00:00"),
+                               lubridate::as_datetime("2017-06-05 03:00:00"),
+                               lubridate::as_datetime("2017-06-05 04:00:00"),
+                               lubridate::as_datetime("2017-05-30 00:00:00")
+                               ), NA_real_, salinity),
+    # 2. Automatically linearly interpolating missing values based on the time vector
+    salinity = zoo::na.approx(salinity, x = time, na.rm = FALSE)
+    )
+
+    geodat = geodat %>%
+      mutate(
+          ## 1. Turn the bad value into NA
+          conductivity = if_else(time %in% 
+                             c(lubridate::as_datetime("2017-06-05 01:00:00"),
+                               lubridate::as_datetime("2017-06-05 02:00:00"),
+                               lubridate::as_datetime("2017-06-05 03:00:00"),
+                               lubridate::as_datetime("2017-06-05 04:00:00")), NA_real_, conductivity),
+    # 2. Automatically interpolate missing values based on the time vector
+    conductivity = zoo::na.approx(conductivity, x = time, na.rm = FALSE)
+    )
+
+
+    ## Impute PAR (using exactly +/- 24 , 48, ... hours)
+    geodat =
+      geodat |> fill_in_par(days = 5, slack = 2) 
+    geodat %>% make_par_plot(cruisename) %>% print()
+    geodat = geodat %>% select(-par) %>% rename(par = par_imputed)
+
+  }
+
+  if(cruisename == "SCOPE_16"){
+    ## Clean one single point using the average of the +-1 hours
+    t_target <- lubridate::as_datetime("2016-05-02 05:00:00")
+    t_prev   <- lubridate::as_datetime("2016-05-02 04:00:00")
+    t_next   <- lubridate::as_datetime("2016-05-02 06:00:00")
+    geodat$salinity[geodat$time == t_target] <- 
+      (geodat$salinity[geodat$time == t_prev] + geodat$salinity[geodat$time == t_next]) / 2
+
+    ## Impute PAR (using exactly +/- 24, 48, and 72 hours)
+    geodat = geodat |> fill_in_par(days = 3)
+    geodat %>% make_par_plot(cruisename) %>% print()
+    geodat = geodat %>% select(-par) %>% rename(par = par_imputed)
+  }
+
+  ## Manual adjustments
+  if(cruisename == "KM1906"){
+    geodat = geodat %>% filter(time > lubridate::as_datetime("2019-04-10 12:00:00"))  
+
+    ## Clean one single point using the average of the +-1 hours
+    t_target <- lubridate::as_datetime("2019-04-15 03:00:00")
+    t_prev   <- lubridate::as_datetime("2019-04-15 02:00:00")
+    t_next   <- lubridate::as_datetime("2019-04-15 04:00:00")
+    geodat$salinity[geodat$time == t_target] <- 
+      (geodat$salinity[geodat$time == t_prev] + geodat$salinity[geodat$time == t_next]) / 2
+
+    ## Impute PAR (using exactly +/- 24 hours)
+    geodat = geodat |> fill_in_par(days = 2)
+    geodat %>% make_par_plot(cruisename) %>% print()
+    geodat = geodat %>% select(-par) %>% rename(par = par_imputed)
+  }
+
+
+  if(cruisename %in% c("TN412_130", "TN397_740")){
+
+    ## Impute PAR (using exactly +/- 24, 48, and 72 hours)
+    geodat = geodat |> fill_in_par(days = 3)
+    geodat %>% make_par_plot(cruisename) %>% print()
+    geodat = geodat %>% select(-par) %>% rename(par = par_imputed)
+
+  }
+
+
+  return(geodat)
+})
+names(datlist) = cruises
+
+
+## Make plots
+plotlist <- lapply(cruises, function(cruisename){
+  geodat = datlist[[cruisename]]
+  geodat %>%
+    pivot_longer(-time) %>%
+    mutate(name = factor(name, levels = c("lat", "lon", "temp", "par", "salinity", "conductivity"))) %>% 
+    ggplot(aes(x = time, y = value, group = name, color = name)) +
+    geom_line(linewidth = 0.8) +
+    facet_wrap(~name, scales = "free_y", ncol = 6) +
+    ggtitle(cruisename) +
+    scale_color_manual(
+      values = custom_colors,
+      limits = c("lat", "lon", "temp", "par", "salinity", "conductivity"),
+      drop = FALSE
+    ) +
+    theme_minimal()
+})
+cowplot::plot_grid(plotlist = plotlist, nrow =5)
+
+
+## Combine them
+plotlist <- lapply(names(datlist), function(nm) {
+  dat <- datlist[[nm]]
+  drawmat_precise_ggplot(dat %>% select(-c("time")) %>% as.matrix()%>% scale()) +
+    ggtitle(nm)
+})
+cowplot::plot_grid(plotlist = plotlist, ncol = 5)
+
+combined_dat = datlist %>% bind_rows(.id = "cruisename") %>% rename(temp_onboard = temp,
+                                                                    salinity_onboard = salinity,
+                                                                    par_onboard = par,
+                                                                    conductivity_onboard = conductivity)
+```
+
+
+---
+
+## Scale and save the on-board data
+
+
+```{r scale-and-save-on-board}
+#| fig-width: 12
+#| fig-height: 7
+
+for(cruisename in cruises){
+
+  ## Take unscaled data
+  X = datlist[[cruisename]]
+
+
+  ## Remove some timepoints 
+  if(cruisename == "MGL1704"){
+    X = X %>% filter(time > lubridate::as_datetime("2017-05-28 15:00:00"))
+  }
+
+  ## Save time/lat/lon.
+  time0 <- lubridate::as_datetime(X$time)
+  lat0 <- X %>% pull(lat)
+  lon0 <- X %>% pull(lon)
+
+  ## Store the scaling information
+  scaleobj <- X %>% select(-lat, -lon, -time) %>% scale() 
+  mean_val <- attr(scaleobj, "scaled:center") %>% unname()
+  sd_val <- attr(scaleobj, "scaled:scale") %>% unname()
+  
+  ## Double check that scaling is sound
+  scaled_data = as.matrix(scaleobj)
+  unscaled_data <- sweep(scaled_data, 2, sd_val, `*`)
+  unscaled_data <- sweep(unscaled_data, 2, mean_val, `+`)
+  orig_matrix <- as.matrix(X %>% select(-time, -lat, -lon))
+  max_diffs <- apply(abs(unscaled_data - orig_matrix), 2, max, na.rm = TRUE) %>% sort()
+  stopifnot(all(max_diffs < 1E-8))
+  
+  ## Save the scaling information
+  filename = paste0(cruisename, "-on-board-scaling-info.RDS")
+  X_scaled = scaled_data
+  saveRDS(list(X_before_scaling = X,
+               X_after_scaling = X_scaled,
+               scaleobj = scaleobj,
+               X_means = mean_val,
+               X_sds = sd_val),
+          file = file.path(outputdir, filename))
+
+  ## Save the scaled data
+  X_combined <- X_scaled %>% as_tibble() %>% mutate(time = time0, lat = lat0, lon = lon0, .before = 1)
+  filename = paste0(cruisename, "-X-on-board.csv")
+  write.csv(X_combined, file = file.path(outputdir, filename), row.names = FALSE)
+
+  ## Make a plot, just because
+  scaled_plot <-
+    X_combined  %>% ##%>% select(-lat) %>% select(-lon) %>% 
+    mutate(across(where(is.numeric) & -time, ~ as.numeric(scale(.x)))) %>% 
+    pivot_longer(-time) %>% 
+    ggplot() +
+    geom_path(aes(x = time, y = value, group = name, col = name), alpha = 1, linewidth = 1) +
+    theme_minimal() +
+    ggtitle(paste0(cruisename, ": Scaled variables over time")) +
+    scale_color_manual(
+      values = custom_colors,
+      limits = c("lat", "lon", "temp", "par", "salinity", "conductivity"),
+      drop = FALSE
+    )  +
+    scale_x_datetime(
+      date_breaks = "1 day", 
+      date_labels = "%b %d" # Format as "Month Day" (e.g., Sep 04), change to "%Y-%m-%d" if you want the year
+    ) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+  print(scaled_plot)
+}
+```
+
+
+
+---
+
+## Combine with CMAP-downloaded covariates
+
+```{r combine-cmap-and-onboard}
+
+cruises_cmap = c(SCOPE_16 = "KOK1606", ## G1
+                 MGL1704 = "MGL1704", ## G2
+                 KM1906 = "KM1906", ## G3
+                 TN397_740 = "TN397", ## G4
+                 TN412_130 = "TN412") ## G5
+
+cruises = c("SCOPE_16", ## G1
+            "MGL1704", ## G2
+            "KM1906", ## G3
+            "TN397_740", ## G4
+            "TN412_130") ## G5
+
+for(cruisename in cruises){ 
+
+  ## Load cmap data
+  cruisename_cmap = cruises_cmap[cruisename]
+  filename = paste0(cruisename_cmap, "-X-from-cmap-imputed-and-scaled.csv")
+  X_cmap = read.csv(file = file.path(outputdir, filename)) %>% as_tibble()
+
+  ## Load on-board data
+  filename = paste0(cruisename, "-X-on-board.csv")
+  X_on_board = read.csv(file = file.path(outputdir, filename)) %>% as_tibble()
+  
+  ## Join them
+  joined = full_join(X_cmap, X_on_board, by = "time")
+  
+  ## Sanity check
+  stopifnot(max(abs(joined$lat.x -  joined$lat.y), na.rm = TRUE) < 5E-1)
+  stopifnot(max(abs(joined$lon.x -  joined$lon.y), na.rm = TRUE) < 5E-1)
+  joined = joined %>% select(-lat.x, -lon.x) %>% rename(lat = lat.y, lon = lon.y)
+
+
+  ## Make a final visualization of all variables (from joined), 
+  ## highlighting the ones from X_on_board as black lines
+  df_long <- joined %>% 
+    select(-lat, -lon) %>%
+    mutate(time = lubridate::as_datetime(time)) %>%
+    pivot_longer(-time, names_to = "name", values_to = "value")
+  
+  hourly_plot <- ggplot(df_long, aes(x = time, y = value, group = name)) +
+    geom_line(color = "blue", alpha = 0.2, linewidth = 0.1) +
+    geom_line(data = filter(df_long, name %in% onboard_vars), color = "black", linewidth = 0.6) +
+    scale_x_datetime(date_breaks = "1 day", labels = scales::label_date("%b %d 00:00")) +
+    theme_minimal() +
+    theme(panel.grid.minor.x = element_blank()) +
+    ggtitle(paste0("All covariates (hourly) over time: ", cruisename)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # Optional: print or save the plot if needed
+  print(hourly_plot)
+
+  ## Make a final visualization of all variables against latitude, connected by time
+  df_long <- joined %>% 
+    select(-lon) %>%
+    mutate(time = lubridate::as_datetime(time)) %>%
+    pivot_longer(-c(time, lat), names_to = "name", values_to = "value") %>%
+    arrange(name, time) # Crucial: ensures rows are ordered chronologically
+   
+  lat_plot <- ggplot(df_long, aes(x = lat, y = value, group = name)) +
+    geom_path(color = "blue", alpha = 0.2, linewidth = 0.1) + # geom_path respects time order
+    geom_path(data = filter(df_long, name %in% onboard_vars), color = "black", linewidth = 0.6) +
+    theme_minimal() +
+    labs(
+      x = "Latitude", 
+      y = "Value", 
+      title = paste0("All covariates over latitude (connected by time): ", cruisename)
+    )
+  
+  # Print plot
+  print(lat_plot)
+  
+  ## Save to file
+  filename = paste0(cruisename, "-X-combined.csv")
+  write.csv(joined, file = file.path(outputdir, filename), row.names = FALSE)
+}
+```
+
+
+
+
+

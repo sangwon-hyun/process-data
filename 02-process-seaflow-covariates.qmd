@@ -1,0 +1,441 @@
+---
+title: "Data imputation and visualization for Environmental Factors"
+author: "Sangwon Hyun"
+date: "2026-08-18"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    embed-resources: true
+    theme: cosmo
+    highlight-style: tango
+execute:
+  warning: false
+  message: false
+---
+
+## 1. Environment Setup & Helper Functions
+
+In this section, we load the necessary R packages and set up matrix visualizers.
+
+```{r setup}
+#| label: setup-packages
+
+## Core tidyverse packages
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(scales)
+
+## Auxiliary packages
+library(broom)
+library(janitor)
+library(softImpute)
+library(kableExtra)
+
+## Helper function for plotting matrix heatmaps
+drawmat_precise_ggplot <- function(distmat, colours = c("blue", "red"),
+                                   limits = NULL,
+                                   xlab = "", ylab = "", title = ""){
+  distmat <- as.matrix(distmat)
+  longData <- reshape2::melt(distmat[nrow(distmat):1, ])
+
+  p <- ggplot() +
+    geom_raster(aes(x = Var2, y = Var1, fill = value), data = longData) +
+    scale_fill_gradientn(colours = colours, guide = "colorbar", limits = limits) +
+    labs(x = xlab, y = ylab, title = title) +
+    theme_minimal() + 
+    theme(
+      axis.text.x = element_text(size = rel(1), angle = 90, vjust = 0.3),
+      axis.text.y = element_text(size = rel(1)),
+      plot.title = element_text(size = rel(1.5))
+    )
+  return(p)
+}
+
+#################
+## Directories ##
+#################
+
+
+## contains files such as X-MGL1704.csv, from Dane's script
+datadir = "~/Dropbox/data/ocean/seaflow-covariates" 
+##datadir = "~/Downloads" 
+
+## Output directory for the imputed hourly covariates
+## outputdir = "~/repos/process-data/output/seaflow-covariates" 
+outputdir = "~/Dropbox/data/ocean/seaflow-covariates" 
+
+
+##############################
+## Conveniencde functions ####
+##############################
+## cat_tab <- function(title, level = 3) {
+##   cat(strrep("#", level), title, "\n\n")
+## }
+cat_tab <- function(title, level = 3) {
+  # The leading "\n\n" forces a clean break from whatever printed previously
+  cat("\n\n", strrep("#", level), " ", title, "\n\n", sep = "")
+}
+
+cat_image <- function(filename) {
+  cat(sprintf("![](%s)\n\n", filename))
+}
+
+
+make_html_table <- function(mytab, table_caption = NULL) {
+  mytab |>
+    kable(
+      format = "html", 
+      digits = 2, 
+      align = "c",
+      caption = table_caption
+    ) |>
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE
+    )
+}
+```
+
+---
+
+## 2. Data Loading & Standardization
+
+Load the cruise dataset and scale numeric features.
+
+
+```{r load-data}
+#| eval: false
+#| code-fold: true
+
+
+## I think these are "plain" names
+## cruisenames_plain = c("SCOPE_16", ## G1
+##                 "MGL1704", ## G2
+##                 "KM1906", ## G3
+##                 "TN397_740", ## G4
+##                 "TN412_130") %>% ## G5
+##   .[2] ## Only G2 for now.
+
+
+cruisenames = c("KOK1606", ## G1
+                "MGL1704", ## G2
+                "KM1906", ## G3
+                "TN397", ## G4
+                "TN412")  ## G5
+##  .[1]  
+
+for(cruisename in cruisenames){
+
+  ## Print the markdown header for the tab
+  cat_tab(cruisename)
+
+  ## Load data
+  filename = paste0( cruisename, "-X.csv")
+  X <- read.csv(file = file.path(datadir, filename))%>% as_tibble()
+  
+  ## Extract spatiotemporal identifiers and scale numerical variables
+  time0 <- lubridate::as_datetime(X$time)
+  lat0 <- X %>% pull(lat)
+  lon0 <- X %>% pull(lon)
+  varnames <- X %>% select(-c("time", "lat", "lon")) %>% colnames()
+  
+  ## 1. First take the means and standard deviations
+  means = X %>% select(-time, -lat, -lon) %>%
+    summarise(across(everything(), ~mean(.x, na.rm = TRUE))) 
+  sds = X %>% select(-time, -lat, -lon) %>%
+    summarise(across(everything(), ~sd(.x, na.rm = TRUE))) 
+  
+  ## Base R plot
+  apply(X[-c(1,2,3)], 2, mean, na.rm=TRUE) %>% sort(decreasing=TRUE) %>%
+    plot(main = "Means of all variables, sorted")
+  cat("\n\n") 
+  
+  ## 2. Then, identify which variables have really big means
+  thresh = 1E10
+  somenames = means[,which(means>thresh & sds > thresh)] %>% names()
+  if(length(somenames) >= 1){
+
+    ## 3. Visualize 
+    p <- X[,somenames] %>%
+      add_column(time = time0) %>%
+      pivot_longer(-time)  %>% 
+      ggplot() +
+      geom_point(aes(x=time, y = value, group = name), size = .5) +
+      facet_wrap(~name, scale = 'free_y')   +
+      ggtitle("The unusually high-value variables")
+    
+    print(p)
+    cat("\n\n") 
+    
+    ## 4. Remove these variables
+    X = X %>% select(-all_of(somenames))
+  }
+  
+  ## Store the scaling information
+  scaleobj <- X %>% select(-lat, -lon, -time) %>% scale() 
+  mean_val <- attr(scaleobj, "scaled:center") %>% unname()
+  sd_val <- attr(scaleobj, "scaled:scale") %>% unname()
+  
+  ## Double check that scaling is sound
+  scaled_data = as.matrix(scaleobj)
+  unscaled_data <- sweep(scaled_data, 2, sd_val, `*`)
+  unscaled_data <- sweep(unscaled_data, 2, mean_val, `+`)
+  orig_matrix <- as.matrix(X %>% select(-time, -lat, -lon))
+  
+  ## Base R plot
+  max_diffs <- apply(abs(unscaled_data - orig_matrix), 2, max, na.rm = TRUE) %>% sort()
+  plot(max_diffs, type = "p", xlab = "Variables (Sorted)",
+       ylab = "Max Absolute Difference",
+       main = "Reconstruction Error per Variable")
+  abline(h = 0, col = "red", lty = 2)
+  cat("\n\n") 
+  
+  ## Save the scaling information
+  filename = paste0(cruisename, "-cmap-scaling-info.RDS")
+  X_scaled = scaled_data
+  saveRDS(list(X_before_scaling = X,
+               X_after_scaling = X_scaled,
+               scaleobj = scaleobj,
+               X_means = mean_val,
+               X_sds = sd_val),
+          file = file.path(outputdir, filename))
+
+  ## Plot the initial scaled variables across time: 
+  X_combined <- X_scaled %>% as_tibble() %>% mutate(time = time0,.before = 1)
+  scaled_plot <- X_combined %>% 
+    pivot_longer(-time) %>% 
+    ggplot() +
+    geom_path(aes(x = time, y = value, group = name), alpha = 0.1, linewidth = 0.1) +
+    theme_minimal() +
+    ggtitle("Scaled variables over time")
+  print(scaled_plot)
+
+
+  ## Analyze missingness patterns across all variables.
+  ## > **Note:** Variables like salinity from GO-SHIP or GEOTRACES trajectories are naturally unavailable for non-targeted cruises ([GO-SHIP Paper](https://www.nature.com/articles/s41597-022-01212-w), [GEOTRACES Overview](https://www.geotraces.org/cruise-overview/)).
+
+
+  ## Proportion of missing time points
+  num_na <- apply(X_scaled, 2, function(mycol) sum(is.na(mycol))) 
+  ##print(head(sort(num_na, decreasing = TRUE)))
+  
+  num_time_points <- nrow(X_scaled)
+  prop_missing <- num_na / num_time_points
+  
+  ## Missingness distribution histogram
+  hist(prop_missing, breaks = 30, main = "Proportion of missing time points")
+  abline(v = 0.25, col = "red", lty = 2)
+  
+  missing_only_few <- sum(prop_missing < 0.25)
+  legend("topleft", legend = paste0("Missing only\na few:\n", missing_only_few, "\nvariables"), box.lwd = 0)
+  
+  missing_a_lot <- sum(prop_missing > 0.25)
+  legend("topright", legend = paste0("Missing \na lot:\n", missing_a_lot, "\nvariables"), box.lwd = 0)
+
+
+  ## Visualize the feature matrix before imputation (variables with $<25\%$ missing values):
+  X_scaled_copy0 <- X_scaled %>% as.matrix()
+  dimnames(X_scaled_copy0) <- NULL
+  
+  heatmap <- X_scaled_copy0 %>% 
+    .[, prop_missing < 0.25] %>% 
+    drawmat_precise_ggplot() + 
+    ggtitle("Matrix heatmap before imputation (<25% missing)")
+  print(heatmap)
+
+  ## Matrix Completion via Low-Rank SVD (`softImpute`); we'll
+  ## fill missing values using nuclear-norm regularized singular value decomposition (`softImpute`).
+  X_scaled_copy <- X_scaled_copy0[, prop_missing < 0.25] 
+
+  if(sum(is.na(X_scaled_copy)) >= 1){
+
+    ## Fit nuclear-norm regularized SVD model
+    fit <- softImpute(X_scaled_copy, rank.max = 100, lambda = 10) ## I haven't carefully chosen lambda (or rank.max); we should do this..
+    
+    ## Complete matrix (fill NAs using low-rank fit)
+    X_hat <- complete(X_scaled_copy, fit, unscale = FALSE)
+
+    ## Visualize the result
+    heatmap2 <- drawmat_precise_ggplot(X_hat) +
+      ggtitle("Matrix heatmap after softImpute low-rank completion")
+    print(heatmap2)
+
+    ## Compare imputed entries against original observed series:
+    X_smaller <- X_scaled_copy
+    observed_vec <- as.vector(X_smaller)
+    p <- ncol(X_smaller)
+    n <- nrow(X_smaller)
+    
+    df <- tibble(
+      Time = rep(1:n, times = p),
+      Series = rep(1:p, each = n),
+      Value = as.vector(X_hat),
+      Imputed_or_not = is.na(observed_vec)  
+    )
+    
+    df_plot <- df %>%
+      mutate(
+        Series_Label = paste("Series", Series),
+        Status = ifelse(Imputed_or_not, "Imputed", "Observed")
+      )
+    
+    imputed_plot <- df_plot %>%
+      group_by(Series) %>%
+      filter(any(Imputed_or_not)) %>%
+      ggplot(aes(x = Time, y = Value)) +
+      geom_line(color = "gray50", linewidth = 0.5, alpha = 0.7) +
+      geom_point(
+        data = . %>% filter(Imputed_or_not),
+        aes(color = Status),
+        size = 0.3
+      ) +
+      facet_wrap(~ Series_Label, scales = "free_y") +
+      scale_color_manual(
+        values = c("Imputed" = "firebrick", "Observed" = "gray30")
+      ) +
+      labs(
+        title = "Time Series Imputation via softImpute",
+        ##| fig-cap: "Comparison of observed vs. softImpute filled values across series"
+        x = "Time Index",
+        y = "Value",
+        color = "Data Point"
+      ) +
+      theme_minimal() +
+      theme(
+        legend.position = "bottom",
+        strip.text = element_text(face = "bold")
+      )
+
+    plot(imputed_plot)
+
+  } else {
+
+    X_hat = X_scaled_copy0[, prop_missing < 0.25]
+
+  }
+
+  ## Sanity check: confirm non-imputed entries were untouched:
+  (X_scaled_copy0[, prop_missing < 0.25] - X_hat) %>% 
+    as.numeric() %>% 
+    summary() %>%
+    as.list() %>%
+    as_tibble(check.names = FALSE)  %>%
+    make_html_table("Summary of the reconstruction errors") %>% print()
+
+
+  ## Format the imputed output, re-attach spatial coordinates, and aggregate to hourly resolution.
+  varnames = colnames(X_scaled)
+  remaining_names = varnames[prop_missing < 0.25]
+  colnames(X_hat) <- remaining_names
+  
+  X_imputed <- X_hat %>% 
+    as_tibble() %>% 
+    add_column(time = time0, lat = lat0, lon = lon0, .before = 1)
+  
+  X_imputed_hourly <- X_imputed %>% 
+    group_by(time = lubridate::floor_date(time, "hour")) %>%
+    summarize(across(where(is.numeric), mean), .groups = "drop")
+
+  hourly_plot <- X_imputed_hourly %>% 
+    select(-lat, -lon) %>%
+    pivot_longer(-time) %>%
+    ggplot() +
+    geom_line(aes(x = time, y = value, group = name), col = "blue", alpha = 0.2, linewidth = 0.1) +
+    scale_x_datetime(
+        breaks = "1 day",
+        labels = label_date("%b %d\n00:00") 
+    ) +
+    theme_minimal() +
+    theme(panel.grid.minor.x = element_blank()) +
+    ggtitle("Hourly aggregated variables over time")
+  plot(hourly_plot)
+
+  hourly_plot_over_lat <- X_imputed_hourly %>% 
+    pivot_longer(-c(time, lat, lon)) %>% 
+    ggplot(aes(x = lat, y = value, group = name)) +
+    geom_path(col = "blue", linewidth = 0.1, alpha = 0.2) +
+    theme_minimal() +
+    ggtitle("Hourly aggregated variables plotted across latitude")
+  plot(hourly_plot_over_lat)
+
+  ## Save the imputed covariates in a single file;
+  ## Saves to MGL1704-X-from-cmap-imputed-and-scaled.csv
+
+  filename = paste0(cruisename, "-X-from-cmap-imputed-and-scaled.csv")
+  write.csv(X_imputed_hourly,
+            file = file.path(outputdir, filename),
+            row.names = FALSE)
+}
+
+## Close the tabset from INSIDE the chunk
+cat("\n\n:::\n\n")
+```
+
+::: {.panel-tabset}
+
+```{r load-data-actual}
+#| ref.label: "load-data"
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+#| fig-width: 8
+
+#| fig-height: 5
+```
+
+
+---
+
+
+```{r}
+# Stop rendering the document right here
+knitr::knit_exit()
+```
+
+
+
+
+---
+
+## 7. Principal Component Analysis (PCA)
+
+Run PCA on observation time points across all imputed variables.
+
+```{r pca-analysis}
+#| label: pca-analysis
+
+pca_res <- X_imputed_hourly %>% 
+  select(-time, -lat, -lon) %>% 
+  prcomp(scale. = TRUE) %>%
+  broom::augment(X_imputed_hourly %>% select(time, lat, lon)) %>% 
+  janitor::clean_names() %>% 
+  rename_with(~ gsub("^fitted_", "", .x), starts_with("fitted_")) %>%
+  select(time, lon, lat, matches("^pc[1-6]$"))
+```
+
+```{r fig-pca-components}
+#| label: fig-pca-components
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: "First six principal components across time"
+
+pca_res %>% 
+  select(-lat, -lon) %>% 
+  pivot_longer(-time) %>%
+  ggplot() +
+  geom_line(aes(x = time, y = value, group = name)) +
+  facet_wrap(~ name) +
+  theme_minimal()
+```
+
+---
+
+## 7. Next Directions
+
+1. Integrate onboard lab variables (PAR, salinity, temperature).
+2. Perform unsupervised variable space embeddings (PCA/UMAP on transposed feature matrix).
