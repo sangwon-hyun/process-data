@@ -5,6 +5,6 @@ covariate_scraping/.Renviron
 
 # Folders of plots
 covariate_scraping/Plots/
-covariate_scraping/reproducible/plots
+covariate_scraping/plots
 
-covariate_scraping/reproducible/.DS_Store
+covariate_scraping/.DS_Store
