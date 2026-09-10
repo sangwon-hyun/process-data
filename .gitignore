@@ -1,1 +1,10 @@
 /.quarto/
+
+# API key
+covariate_scraping/.Renviron
+
+# Folders of plots
+covariate_scraping/Plots/
+covariate_scraping/reproducible/plots
+
+covariate_scraping/reproducible/.DS_Store
