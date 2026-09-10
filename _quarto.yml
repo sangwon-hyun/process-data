@@ -6,7 +6,7 @@ book:
   title: "Documenting Data Processing"
   author: "Sangwon Hyun"
   chapters:
-    - index.Rmd
+    - index.qmd
     - 00-setup.qmd
     - 01-process-seaflow.qmd
     - 02-process-seaflow-covariates.qmd
