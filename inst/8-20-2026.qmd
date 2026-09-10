@@ -1,0 +1,196 @@
+---
+title: "Data imputation and visualization for Environmental Factors"
+author: "Sangwon Hyun"
+date: "2026-08-18"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+## 1. Environment Setup & Helper Functions
+
+In this section, we load the necessary R packages and set up matrix visualizers.
+
+```{r setup}
+#| label: setup-packages
+
+## Core tidyverse packages
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(scales)
+
+## Auxiliary packages
+library(broom)
+library(janitor)
+library(softImpute)
+
+## Helper function for plotting matrix heatmaps
+drawmat_precise_ggplot <- function(distmat, colours = c("blue", "red"),
+                                   limits = NULL,
+                                   xlab = "", ylab = "", title = ""){
+  distmat <- as.matrix(distmat)
+  longData <- reshape2::melt(distmat[nrow(distmat):1, ])
+
+  p <- ggplot() +
+    geom_raster(aes(x = Var2, y = Var1, fill = value), data = longData) +
+    scale_fill_gradientn(colours = colours, guide = "colorbar", limits = limits) +
+    labs(x = xlab, y = ylab, title = title) +
+    theme_minimal() + 
+    theme(
+      axis.text.x = element_text(size = rel(1), angle = 90, vjust = 0.3),
+      axis.text.y = element_text(size = rel(1)),
+      plot.title = element_text(size = rel(1.5))
+    )
+  return(p)
+}
+```
+
+---
+
+## 2. Data Loading & Standardization
+
+Also load the handful of environmental covariates from on-board the cruise.
+
+
+```{r}
+raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"
+list.files(raw_data_dir)
+cruises = c("SCOPE_16", ## G1
+            "MGL1704", ## G2
+            "KM1906", ## G3
+            "TN397_740", ## G4
+            "TN412_130") ## G5
+datlist = lapply(cruises, function(cruisename){
+
+  
+  ## ## temporary
+  ## cruisename = "MGL1704"
+
+  ## Load sunlight (par), temperature, conductivity, salinity
+  geodat =
+    file.path(raw_data_dir, cruisename, "dash", paste0(cruisename, "-geo.tsdata"))   %>%
+    read.csv(sep = "\t", skip = 6)  %>% as_tibble() %>%
+    mutate(time = lubridate::as_datetime(time))
+  
+  geodat =
+    geodat %>%
+    mutate(hour_group = floor_date(time, "1 hour")) %>%
+    group_by(hour_group) %>%
+    summarise(across(where(is.numeric), \(x) mean(x, na.rm=TRUE))) %>%
+    rename(time = hour_group)
+  
+  ## Manual adjustments
+  if(cruisename == "MGL1704"){
+
+
+    geodat = geodat %>%
+      mutate(
+          ## 1. Turn the bad value into NA
+          salinity = if_else(time %in% 
+                             c(lubridate::as_datetime("2017-06-05 01:00:00"),
+                               lubridate::as_datetime("2017-06-05 02:00:00"),
+                               lubridate::as_datetime("2017-06-05 03:00:00"),
+                               lubridate::as_datetime("2017-06-05 04:00:00")), NA_real_, salinity),
+    # 2. Automatically interpolate missing values based on the time vector
+    salinity = zoo::na.approx(salinity, x = time, na.rm = FALSE)
+  )
+
+    geodat = geodat %>%
+      mutate(
+          ## 1. Turn the bad value into NA
+          conductivity = if_else(time %in% 
+                             c(lubridate::as_datetime("2017-06-05 01:00:00"),
+                               lubridate::as_datetime("2017-06-05 02:00:00"),
+                               lubridate::as_datetime("2017-06-05 03:00:00"),
+                               lubridate::as_datetime("2017-06-05 04:00:00")), NA_real_, conductivity),
+    # 2. Automatically interpolate missing values based on the time vector
+    conductivity = zoo::na.approx(conductivity, x = time, na.rm = FALSE)
+  )
+
+  }
+
+  if(cruisename == "SCOPE_16"){
+    ## Clean one single point using the average of the +-1 hours
+    t_target <- lubridate::as_datetime("2016-05-02 05:00:00")
+    t_prev   <- lubridate::as_datetime("2016-05-02 04:00:00")
+    t_next   <- lubridate::as_datetime("2016-05-02 06:00:00")
+    geodat$salinity[geodat$time == t_target] <- 
+      (geodat$salinity[geodat$time == t_prev] + geodat$salinity[geodat$time == t_next]) / 2
+  }
+
+  ## Manual adjustments
+  if(cruisename == "KM1906"){
+    geodat = geodat %>% filter(time > lubridate::as_datetime("2019-04-10 12:00:00"))  
+
+    ## Clean one single point using the average of the +-1 hours
+    t_target <- lubridate::as_datetime("2019-04-15 03:00:00")
+    t_prev   <- lubridate::as_datetime("2019-04-15 02:00:00")
+    t_next   <- lubridate::as_datetime("2019-04-15 04:00:00")
+    geodat$salinity[geodat$time == t_target] <- 
+      (geodat$salinity[geodat$time == t_prev] + geodat$salinity[geodat$time == t_next]) / 2
+
+    ## Impute PAR
+
+  }
+  return(geodat)
+})
+names(datlist) = cruises
+
+plotlist <- lapply(cruises, function(cruisename){
+  geodat = datlist[[cruisename]]
+  geodat %>%
+    pivot_longer(-time) %>%
+    mutate(name = factor(name, levels = c("lat", "lon", "temp", "par", "salinity", "conductivity"))) %>% 
+    ggplot() +
+    geom_line(aes(x=time, y = value, group = name, col = name)) +
+    facet_wrap(~name, scale = "free_y", ncol = 6) +
+    ggtitle(cruisename)
+    })
+cowplot::plot_grid(plotlist = plotlist, nrow=5)
+
+
+lapply(names(datlist), function(nm) {
+  dat <- datlist[[nm]]
+  drawmat_precise_ggplot(dat %>% select(-c("time")) %>% as.matrix()%>% scale()) +
+    ggtitle(nm)
+}) %>%
+  cowplot::plot_grid(plotlist = ., ncol = 5)
+
+
+combined_dat = datlist %>% bind_rows(.id = "cruisename") %>% rename(temp_onboard = temp,
+                                                                    salinity_onboard = salinity,
+                                                                    par_onboard = par,
+                                                                    conductivity_onboard = conductivity)
+```
+
+## 2. Combine with CMAP-downloaded covariates
+
+```{r}
+
+## (list(X_before_scaling = X,
+##              X_after_scaling = X_scaled,
+##              scaleobj = scaleobj,
+##              X_means = mean_val,
+##              X_sds = sd_val),
+cruisename = "MGL1704"
+filename = paste0(cruisename, "-scaling-info.RDS")
+covariates_from_cmap <- readRDS(file = file.path("~/repos/process-data/output/seaflow", filename))
+
+```
+
+
+Next up
+- [ ] Combine these with `X.RDS`.
+- [ ] Send them to Trisha.
+- [ ] Dig up the old covariates (where are they..).
+- [ ] Fit flowmix/flowtrend on these models.
+- [ ] Make a plan for doing the rest.
+

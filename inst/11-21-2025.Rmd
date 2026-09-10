@@ -1,0 +1,272 @@
+# Gradients 3 needs some manual processing
+
+First, looking at censor-removed, binned data.
+
+```{r, fig.width = 10, fig.height = 3}
+## Load binned data
+cruisename = "KM1906"
+datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+filename = paste0(cruisename, "-gridded-without-censor-removal.csv")
+list.files(datadir)
+hourly_gridded = read.csv(file = file.path(datadir, filename)) %>% as_tibble()
+ylist = hourly_gridded %>% group_by(date) %>% group_split() %>%
+  lapply(function(df){
+    df %>% select(fsc_small_coord, chl_small_coord, pe_coord) %>% as.matrix()
+  })
+biomass_list = hourly_gridded %>% group_by(date) %>% group_split() %>%
+  lapply(function(df){
+    df %>% pull(Qc)
+  })
+dates = lubridate::as_datetime(unique(hourly_gridded$date))
+
+## Plotting before processing
+datobj = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = 1)
+gg_before = my_plotter(datobj$ylist, datobj$countslist, dates, paste0(cruisename, " before any processing"))
+
+
+## Find the cutoff's bin number (in fsc_small)
+cutoffs = list()
+new_countslist = list()
+april_16 = which(lubridate::day(dates) == 16)
+april_17 = which(lubridate::day(dates) == 17)
+april_18 = which(lubridate::day(dates) == 18)
+TT = length(biomass_list)
+for(tt in 1:TT){
+
+  one_count = datobj$countslist[[tt]]
+  one_y = datobj$ylist[[tt]] 
+
+  ## Find cutoff point
+  diffs = one_count  %>% diff()
+  a = which(sapply(1:(length(diffs)-1), function(ii){
+    (sign(diffs[ii]) != sign(diffs[ii+1])) &
+      (diff(diffs)[ii]>0)
+  }))
+  a = min(a, na.rm = TRUE)
+  if(tt %in% c(april_16, april_17, april_18)){
+    a = a[a<=9] 
+  } else {
+    a = a[a<=5] 
+  }
+  stopifnot(length(a) <= 1)
+  cutoffs[[tt]] = one_y[a]
+}
+
+## Next, removing the points with small fsc_small altogether.
+## (Also remove the top-most row in fsc_small and chl_small.)
+new_biomass_list = biomass_list
+new_ylist = ylist
+for(tt in 1:TT){
+  one_count = biomass_list[[tt]]
+  one_y = ylist[[tt]]
+  if( length(cutoffs[[tt]]) > 0 ){
+    irow_to_remove1 = which(one_y[,"fsc_small_coord"] <= cutoffs[[tt]])
+  } else {
+    irow_to_remove1 = c()
+  }
+
+  ## Removing the top rows
+  irow_to_remove2 = which(one_y[,"fsc_small_coord"] == 80)
+  irow_to_remove3 = which(one_y[,"chl_small_coord"] == 40)
+  irow_to_remove = c(irow_to_remove1, irow_to_remove2, irow_to_remove3)
+  if(length(irow_to_remove) > 0){
+  new_ylist[[tt]] = one_y[-irow_to_remove,]
+  new_biomass_list[[tt]] = one_count[-irow_to_remove]
+  }
+}
+
+## Remove these odd time points
+## dates[c(21, 136:139)]
+## "2019-04-11 19:00:00 UTC"
+## "2019-04-16 16:00:00 UTC"
+## "2019-04-16 17:00:00 UTC"
+## "2019-04-16 18:00:00 UTC"
+## "2019-04-16 19:00:00 UTC"
+new_dates = dates[-c(21, 136:139)]
+new_ylist = new_ylist[-c(21, 136:139)]
+new_biomass_list = new_biomass_list[-c(21, 136:139)]
+stopifnot(length(new_dates)==length(new_ylist))
+stopifnot(length(new_dates)==length(new_biomass_list))
+
+datobj_after_correction = flowmix::collapse_3d_to_1d(ylist = new_ylist, countslist = new_biomass_list, idim = 1)
+gg_after = my_plotter(datobj_after_correction$ylist,
+                  datobj_after_correction$countslist,
+                  new_dates,
+                  paste0(cruisename, " after any processing"))
+gg_after
+
+cowplot::plot_grid(plotlist = list(gg_before, gg_after), ncol = 1, labels = NULL)    %>% 
+  ggsave(filename =  file.path(outputdir, paste0(cruisename, "-processing.png")), width = 10, height = 13)
+
+
+## Combine these things back into a csv-saveable table.
+dates_list <- new_dates %>% as.list()
+recombined_list <- purrr::pmap(list(dates_list, new_ylist, new_biomass_list), function(date_str, coords_matrix, qc_vector) {
+  coords_tibble <- as_tibble(coords_matrix, .name_repair = "unique")
+  colnames(coords_tibble) <- c("fsc_small_coord", "pe_coord", "chl_small_coord") # Rename columns
+  coords_tibble %>%
+    mutate(date = date_str, Qc = qc_vector)
+})
+hourly_gridded_reconstructed <- bind_rows(recombined_list) %>%
+  select(date, fsc_small_coord, chl_small_coord, pe_coord, Qc)
+
+## Each cruise is now saved to a file
+filename = paste0(cruise, "-gridded-after-censor-removal.csv")
+outfile = file.path(outputdir, filename)
+write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
+cat("wrote to", outfile, fill=TRUE)
+```
+
+# Now, look at G1, G2 and G4
+
+With the same critical pipeline ((1) remove edge points in fsc and chl, (2)
+visually remove weird points).
+
+```{r}
+## Load binned data
+cruises = c("SCOPE_16", ## G1
+            "MGL1704", ## G2
+            "TN397_740") ## G4
+for(cruisename in cruises){
+  print(cruisename)
+  ## cruisename = "MGL1704"
+  ## cruisename = "SCOPE_16"
+   cruisename = "TN412_130"
+   cruisename = "TN397_740"
+  datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+  filename = paste0(cruisename, "-gridded-without-censor-removal.csv")
+  hourly_gridded = read.csv(file = file.path(datadir, filename)) %>% as_tibble()
+  hourly_gridded
+  ylist = hourly_gridded %>% group_by(date) %>% group_split() %>%
+    lapply(function(df){
+      df %>% select(fsc_small_coord, chl_small_coord, pe_coord) %>% as.matrix()
+    })
+  biomass_list = hourly_gridded %>% group_by(date) %>% group_split() %>%
+    lapply(function(df){
+      df %>% pull(Qc)
+    })
+  dates = lubridate::as_datetime(unique(hourly_gridded$date))
+  
+  ## Collapse into 1d for plotting
+  datobj = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = 1)
+  
+  ## Plotting before processing
+  gg_before = my_plotter(datobj$ylist, datobj$countslist, dates, paste0(cruisename, " before any processing"))
+  
+  ## For G2 and G4 (but not G1) remove *top* fsc_small_coord bin altogether
+  new_biomass_list = biomass_list
+  new_ylist = ylist
+  new_dates = dates
+  if(cruisename != "SCOPE_16"){
+    TT = length(ylist)
+    for(tt in 1:TT){
+      print(tt)
+      one_count = biomass_list[[tt]]
+      one_y = ylist[[tt]]
+      irow_to_remove2 = which(one_y[,"fsc_small_coord"] == 80)
+      irow_to_remove = c(irow_to_remove1, irow_to_remove2)
+      if(length(irow_to_remove) > 0){
+        new_ylist[[tt]] = one_y[-irow_to_remove,]
+        new_biomass_list[[tt]] = one_count[-irow_to_remove]
+      }
+    }
+  }
+  
+  ## Plotting after processing
+  datobj = flowmix::collapse_3d_to_1d(ylist = new_ylist, countslist = new_biomass_list, idim = 1)
+  gg_after = my_plotter(datobj$ylist, datobj$countslist, dates, paste0(cruisename, " after any processing"))
+  cowplot::plot_grid(plotlist = list(gg_before, gg_after), ncol = 1, labels = NULL)    %>% 
+    ggsave(filename =  file.path(outputdir, paste0(cruisename, "-processing.png")), width = 10, height = 13)
+
+
+  ## Combine these things back into a csv-saveable table.
+  dates_list <- new_dates %>% as.list()
+  recombined_list <- purrr::pmap(list(dates_list, new_ylist, new_biomass_list), function(date_str, coords_matrix, qc_vector) {
+    coords_tibble <- as_tibble(coords_matrix, .name_repair = "unique")
+    colnames(coords_tibble) <- c("fsc_small_coord", "pe_coord", "chl_small_coord") # Rename columns
+    coords_tibble %>%
+      mutate(date = date_str, Qc = qc_vector)
+  })
+  hourly_gridded_reconstructed <- bind_rows(recombined_list) %>%
+    select(date, fsc_small_coord, chl_small_coord, pe_coord, Qc)
+  
+  ## Each cruise is now saved to a file
+  filename = paste0(cruisename, "-gridded-after-censor-removal.csv")
+  outfile = file.path(outputdir, filename)
+  write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
+  cat("wrote to", outfile, fill=TRUE)
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Okay, I think cleanup is done, and jobs can be run now. 
+
+
+```{r}
+cruises = c("SCOPE_16", ## G1
+            "MGL1704", ## G2
+            "TN397_740") ## G4
+cruisename = "TN397_740"
+datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+filename = paste0(cruisename, "-gridded-after-censor-removal.csv")
+hourly_gridded = read.csv(file = file.path(datadir, filename)) %>% as_tibble()
+ylist = hourly_gridded %>% group_by(date) %>% group_split() %>%
+  lapply(function(df){
+    df %>% select(fsc_small_coord, chl_small_coord, pe_coord) %>% as.matrix()
+  })
+biomass_list = hourly_gridded %>% group_by(date) %>% group_split() %>%
+  lapply(function(df){
+    df %>% pull(Qc)
+  })
+dates = lubridate::as_datetime(unique(hourly_gridded$date))
+tt_end = 200
+## tt_end = length(dates)
+set.seed(0)
+obj = flowtrend::flowtrend_once(ylist = ylist[1:tt_end],
+                                countslist = biomass_list[1:tt_end],
+                                lambda = .01,
+                                lambda_prob = .01,
+                                numclust = 5,
+                                maxdev = 5,
+                                l = 1,
+                                l_prob = 1, verbose = TRUE,
+                                rho_init = 0.05,
+                                niter = 10)
+## lot(obj$objectives)
+
+?flowtrend::flowtrend_once
+
+datobj = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = 1)
+flowtrend::plot_1d(ylist = datobj$ylist[1:tt_end],
+                   countslist = datobj$countslist[1:tt_end], bin = TRUE)  +
+  geom_line(aes(x=time, y = value, group = name, col = name), data = mnmat_long)
+
+mnmat = obj$mn %>% .[,1,] 
+mnmat = as_tibble(mnmat) %>% add_column(time = 1:tt_end) 
+mnmat_long = mnmat %>%   pivot_longer(-time)
+
+
+mnmat
+probmat = obj2$prob
+matplot(probmat)
+
+```
+
+
+Things to do next:
+
+1. Fix flowtrend from these errors, methodically
+2. Ready the code to submit bioprovince.
+3. Read the captions for
