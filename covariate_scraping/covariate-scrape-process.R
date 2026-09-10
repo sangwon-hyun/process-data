@@ -31,7 +31,7 @@ if (!dir.exists(figures_path)) {
 
 # Define all global tables which will be used to colocalize
 # (must have "global_tables_vars.csv" in same directory as this script)
-target_tables_vars <- read.csv(file.path(script_dir, "global_tables_vars.csv"))
+target_tables_vars <- read.csv(file.path(script_dir, "catalog.csv"))
 
 # API key access
 set_authorization(
