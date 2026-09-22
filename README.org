@@ -16,17 +16,19 @@ The bookdown can be found here:
 also live here:
 https://sangwon-hyun.github.io/process-data
 
-
 The scripts (named e.g. ~01-process-cruise-data.qmd~) are to be run in order of
-the numbers on the filenames.
+the numbers on the names of the files.
 
-- The output will be saved under ~outputdir~.
+- The output will be saved under ~outputdir~ defined in each file.
   - For ~01-process-seaflow.qmd~, this is ~"~/Dropbox/data/ocean/seaflow-covariates~.
   - For ~02-process-seaflow-covariates.qmd~ and ~03-add-onboard-covariates.qmd~, this is ~"~/Dropbox/data/ocean/seaflow-covariates~.
-- The data should be located in a directory that should be assigned to the R
-  variable ~raw_data_dir~.
-- The current raw flow cytometry data is placed in a Dropbox folder located
-  here:
+- The data should be placed in a directory that should be assigned to the R
+  variable ~raw_data_dir~. The current raw flow cytometry data is placed in a
+  Dropbox folder located here:
   - [[https://www.dropbox.com/scl/fo/0xjpv63xphe3cycfq8mt4/AKxaHGNacELmzuv9idwsToA?rlkey=srubu3w095hssfegq17hqpkj3&dl=0][Dropbox folder for raw seaflow data]]; use a subdirectory such as
-    ~particle-data-2025-11-21~.
-- The current raw
+    ~particle-data-2024-09-23~, ~particle-data-2025-11-21~ and
+    ~particle-data-2026-09-22~.
+
+Several folders contain specific scripts for downloading data.
+  - [[./covariate_scraping]] contains a pipeline for scraping data.
+  - [[./cytogram-particle-download]] contains code for downloading particle-level data.

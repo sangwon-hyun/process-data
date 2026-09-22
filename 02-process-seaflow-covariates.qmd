@@ -52,30 +52,25 @@ drawmat_precise_ggplot <- function(distmat, colours = c("blue", "red"),
 #################
 
 
-## contains files such as X-MGL1704.csv, from Dane's script
+## contains files such as X-MGL1704.csv, from Dane's covariate_scraping scripts
+## (Change to your Dropbox/data directory locally.)
 datadir = "~/Dropbox/data/ocean/seaflow-covariates" 
 ##datadir = "~/Downloads" 
 
 ## Output directory for the imputed hourly covariates
+## (Change to your Dropbox/data directory locally.)
 ## outputdir = "~/repos/process-data/output/seaflow-covariates" 
 outputdir = "~/Dropbox/data/ocean/seaflow-covariates" 
 
 
-##############################
-## Conveniencde functions ####
-##############################
-## cat_tab <- function(title, level = 3) {
-##   cat(strrep("#", level), title, "\n\n")
-## }
+#########################
+## Helpers functions ####
+#########################
+
 cat_tab <- function(title, level = 3) {
   # The leading "\n\n" forces a clean break from whatever printed previously
   cat("\n\n", strrep("#", level), " ", title, "\n\n", sep = "")
 }
-
-cat_image <- function(filename) {
-  cat(sprintf("![](%s)\n\n", filename))
-}
-
 
 make_html_table <- function(mytab, table_caption = NULL) {
   mytab |>
@@ -100,7 +95,6 @@ Load the cruise dataset and scale numeric features.
 
 
 ```{r load-data}
-#| eval: false
 #| code-fold: true
 
 
@@ -118,7 +112,6 @@ cruisenames = c("KOK1606", ## G1
                 "KM1906", ## G3
                 "TN397", ## G4
                 "TN412")  ## G5
-##  .[1]  
 
 for(cruisename in cruisenames){
 

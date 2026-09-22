@@ -94,7 +94,9 @@ plot_3d_temp <- function(tt, ylist, biomass_list, dates){
   ## for(onedate in datetimes){
   ##   tt = which(datetimes == onedate)
     plotlist = lapply(1:3, function(ll){
+    capture.output({
       tempdat = flowmix::collapse_3d_to_2d(ylist[[tt]], biomass_list[[tt]], dims = dimslist[[ll]])
+    })
       gg1 = flowtrend::plot_2d(ylist      = list(tempdat[,c(1,2)]),
                                countslist = list(tempdat[,3, drop=TRUE]), tt = 1,
                                raster_colours = c("white", "black", "yellow", "red"))
@@ -140,7 +142,10 @@ my_marginal_plotter <- function(ylist, biomass_list, dates = NULL, normalize_by_
 
   plotlist = lapply(1:3, function(idim){
 
-    datobj_1d = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = idim)
+
+    capture.output({
+      datobj_1d = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = idim)
+    })
 
     ## Tiny 1-line helper: snaps whatever data range ggplot sees to the nearest days
     snap_days <- function(x) seq(floor_date(min(x), "day"), ceiling_date(max(x), "day"), by = "6 hours")
@@ -178,7 +183,7 @@ my_marginal_plotter <- function(ylist, biomass_list, dates = NULL, normalize_by_
       ggtitle(cruisename) +
       ylab(c("fsc (forward scatter)", "chl", "pe")[idim])
   })
-  cowplot::plot_grid(plotlist = plotlist, ncol = 1) %>% print()
+  cowplot::plot_grid(plotlist = plotlist, ncol = 1)
 }
 
 
