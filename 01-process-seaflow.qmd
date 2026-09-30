@@ -37,6 +37,7 @@ library(mclust)
 ## dir.create(outputdir, showWarnings = FALSE)
 
 ## Output directory
+## (Change to your Dropbox location locally.)
 outputdir = "~/Dropbox/data/ocean/seaflow" 
 
 ## Helpers
@@ -46,7 +47,11 @@ source(here::here("01-helpers.R"))
 ## (Change to your Dropbox/data directory locally.)
 # raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2024-09-23"
 raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"
+```
 
+Here, we set some things up for gridding and binning the particle-level data.
+
+```{r grid-setup}
 ## Bin resolution for each dimension
 fsc_small_bin_count <- 80
 pe_bin_count <- 80
@@ -175,13 +180,15 @@ for(cruisename in cruises){
 
   ## Make a 1d forward scatter (fsc) plot over time.
   plotlist = lapply(1:3, function(idim){
-  datobj_1d = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = idim)
-  flowtrend::plot_1d(ylist = datobj_1d$ylist,
-                     countslist = datobj_1d$countslist,  bin = TRUE,
-                     x = dates) +
-    scale_fill_gradientn(colours = c("white", "black", "yellow", "red")) +
-    ggtitle(cruisename) +
-    ylab(c("fsc (forward scatter)", "chl", "pe")[idim])
+    capture.output({
+      datobj_1d = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = idim)
+    })
+    flowtrend::plot_1d(ylist = datobj_1d$ylist,
+                       countslist = datobj_1d$countslist,  bin = TRUE,
+                       x = dates) +
+      scale_fill_gradientn(colours = c("white", "black", "yellow", "red")) +
+      ggtitle(cruisename) +
+      ylab(c("fsc (forward scatter)", "chl", "pe")[idim])
   })
   cowplot::plot_grid(plotlist = plotlist, ncol = 1) %>% print()
 }
@@ -189,6 +196,7 @@ for(cruisename in cruises){
 
 
 ## Data cleaning notes
+
 
 Next, we will clean/process the binned data.
 
@@ -217,18 +225,18 @@ Here are some points that came up while cleaning data.
 4. I've found that G1 has a level jump in Prochlorococcus levels in the middle
    of the cruise. This is apparent from 1d plots and the series of 3d bin plots.
 
+::: {.panel-tabset}
+
 ### Cleaning Gradients 3 
 
 ```{r, clean-g3}
 #| fig-width: 12
-#| fig-height: 12
-#| output: false
+#| fig-height: 36 
 
 ## Load binned data
 cruisename = "KM1906"
-datadir = "~/Dropbox/data/ocean/seaflow/old"
-csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
+csv_filename = paste0(cruisename, "-gridded-before-cleaning.csv")
+datlist <- csv_to_datlist(outputdir = outputdir,
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -271,7 +279,7 @@ gg_after_date_removal = my_marginal_plotter(newest_ylist, newest_biomass_list, d
 combined_plot = cowplot::plot_grid(plotlist = list(gg_init %>% add_title("initial",.99),
                                    gg_after_chl %>% add_title("After CHL removal",.99),
                                    gg_after_chl_and_fsc %>% add_title("After CHL&FSC removal",.99), 
-                                   gg_after_date_removal%>% add_title("After removing some cytograms",.99)), ncol = 2)  
+                                   gg_after_date_removal%>% add_title("After removing some cytograms",.99)), ncol = 1)  
 plot(combined_plot)
 
 
@@ -293,6 +301,8 @@ removed_cytogram_plot <-
                                             "Hourly cytogram that were removed\n",
                                             paste(dates[c(21, 136:139)], collapse = " \n ")),
                                             color = "black", face = "bold", size = 10))
+
+print(removed_cytogram_plot)
 
 ggsave(filename =  file.path(outputdir,
                              paste0(cruisename, "-removed-cytograms.pdf")),
@@ -334,12 +344,6 @@ filename = paste0(cruisename, "-gridded-after-cleaning.csv")
 outfile = file.path(outputdir, filename)
 write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
 cat("wrote to", outfile, fill=TRUE)
-
-
-## Example of how to load and reconstruct a |ylist| and |countslist| object.
-
-# write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
-# cat("wrote to", outfile, fill=TRUE)
 ```
 
 
@@ -348,14 +352,12 @@ cat("wrote to", outfile, fill=TRUE)
 
 ```{r clean-g2}
 #| fig-width: 12
-#| fig-height: 12
-#| output: false
+#| fig-height: 36
 
 ## Load binned data
 cruisename = "MGL1704"
-datadir = "~/Dropbox/data/ocean/seaflow"
-csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow/old",
+csv_filename = paste0(cruisename, "-gridded-before-cleaning.csv")
+datlist <- csv_to_datlist(outputdir = outputdir,
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -380,8 +382,6 @@ new_biomass_list = res$biomass_list
 ylist_cens_after_chl = res$ylist_cens
 biomass_list_cens_after_chl = res$biomass_list_cens
 gg_after_chl = my_marginal_plotter(new_ylist, new_biomass_list, dates)
-## cowplot::plot_grid(plotlist = list(gg_init,
-##                                    gg_after_chl), ncol = 2)
 
 ## Remove top fsc too
 res = my_edge_bin_remove(new_ylist, new_biomass_list, dimname = "fsc_small", min_or_max = "max")
@@ -391,14 +391,12 @@ ylist_cens_after_chl_and_fsc = res$ylist_cens
 biomass_list_cens_after_chl_and_fsc = res$biomass_list_cens
 gg_after_chl_and_fsc = my_marginal_plotter(newer_ylist, newer_biomass_list, dates)
 
-## cowplot::plot_grid(plotlist = list(gg_init,
-##                                    gg_after_chl,
-##                                    gg_after_chl_and_fsc), ncol = 3)
 
 combined_plot <-
 cowplot::plot_grid(plotlist = list(gg_init %>% add_title("initial",.99),
                                    gg_after_chl %>% add_title("After CHL removal",.99),
                                    gg_after_chl_and_fsc %>% add_title("After CHL&FSC removal",.99)),ncol = 1) 
+plot(combined_plot)
 ggsave(filename =  file.path(outputdir,
                              paste0(cruisename, "-censor-removal.pdf")),
        plot = combined_plot,
@@ -457,20 +455,18 @@ cat("wrote to", outfile, fill=TRUE)
 
 
 
-### Cleaning Gradients 1 
+### Cleaning Gradients 1  
 
 For G1, remove chl, then pe in order.
 
 ```{r clean-g1}
 #| fig-width: 12
-#| fig-height: 12
-#| output: false
+#| fig-height: 36
 
 ## Load binned data
 cruisename = "SCOPE_16"
-datadir = "~/Dropbox/data/ocean/seaflow"
-csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
+csv_filename = paste0(cruisename, "-gridded-before-cleaning.csv")
+datlist <- csv_to_datlist(outputdir = outputdir,
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -500,11 +496,15 @@ newer_ylist = res$ylist
 newer_biomass_list = res$biomass_list
 gg_after_chl_and_pe = my_marginal_plotter(newer_ylist, newer_biomass_list, dates)
 
+combined_plot <-
 cowplot::plot_grid(plotlist = list(gg_init %>% add_title("initial",.99),
                                    gg_after_chl %>% add_title("After CHL removal",.99),
-                                   gg_after_chl_and_pe %>% add_title("After CHL&PE removal",.99)),ncol = 1)  %>%
-    ggsave(filename =  file.path(outputdir,
-                                 paste0(cruisename, "-censor-removal.pdf")), width = 10, height = 30)
+                                   gg_after_chl_and_pe %>% add_title("After CHL&PE removal",.99)),ncol = 1)
+plot(combined_plot)
+ggsave(filename =  file.path(outputdir,
+                             paste0(cruisename, "-censor-removal.pdf")),
+       plot = combined_plot,
+       width = 10, height = 30)
 
 
 ## Make all 3d plots
@@ -550,14 +550,12 @@ cat("wrote to", outfile, fill=TRUE)
 
 ```{r clean-g4}
 #| fig-width: 12
-#| fig-height: 12
-#| output: false
+#| fig-height: 36
 
 ## Load binned data
 cruisename = "TN397_740"
-datadir = "~/Dropbox/data/ocean/seaflow"
-csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
+csv_filename = paste0(cruisename, "-gridded-before-cleaning.csv")
+datlist <- csv_to_datlist(outputdir = outputdir,
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -590,7 +588,8 @@ gg_after_chl_and_fsc = my_marginal_plotter(newer_ylist, newer_biomass_list, date
 combined_plot <- cowplot::plot_grid(plotlist = list(gg_init %>% add_title("initial",.99),
                                    gg_after_chl %>% add_title("After CHL removal",.99),
                                    gg_after_chl_and_fsc %>% add_title("After CHL&FSC removal",.99)),ncol = 1) 
-ggsave(filename =  file.path(outputdir,
+plot(combined_plot)
+ggsave(filename =  file.path(outputdir, 
                              paste0(cruisename, "-censor-removal.pdf")),
        plot = combined_plot,
        width = 10, height = 30)
@@ -637,14 +636,12 @@ cat("wrote to", outfile, fill=TRUE)
 
 ```{r clean-g5}
 #| fig-width: 12
-#| fig-height: 12
-#| output: false
+#| fig-height: 36
 
 ## Load binned data
 cruisename = "TN412_130" ## G5
-datadir = "~/Dropbox/data/ocean/seaflow"
-csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
+csv_filename = paste0(cruisename, "-gridded-before-cleaning.csv")
+datlist <- csv_to_datlist(outputdir = outputdir,
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -653,23 +650,28 @@ dates <- datlist$datetimes
 ## Plotting before processing
 gg_init = my_marginal_plotter(ylist, biomass_list, dates)
 
+
+## temporary 
+tt=200
+tt=300
+## end of temporary
+
 ## It seems like we'll remove top row of  chl and fsc
 
 ## Make a 3d particle plot to get a sense of censoring
 ## tt = 100
 TT = length(ylist)
 tt = 100
-tt = 36  ## Look at this next; are low PE particles also  high FSC (and high/low but not  mid CHL)?
-# obj = plotly_particle(cruisename, tt, .1)
-# print(obj)
+tt = 36  ## Look at this next; are low PE particles also high FSC (and high/low but not  mid CHL)?
+obj = plotly_particle(cruisename, tt, .1)
+print(obj)
+
 
 ## Remove top chl (first; next up is removing bottom fsc_small)
 res = my_edge_bin_remove(ylist, biomass_list, dimname = "chl_small", min_or_max = "max")
 new_ylist = res$ylist
 new_biomass_list = res$biomass_list
 gg_after_chl = my_marginal_plotter(new_ylist, new_biomass_list, dates)
-cowplot::plot_grid(plotlist = list(gg_init,
-                                   gg_after_chl), ncol = 2)
 
 
 ## Remove top FSC 
@@ -677,12 +679,10 @@ res = my_edge_bin_remove(new_ylist, new_biomass_list, dimname = "fsc_small", min
 newer_ylist = res$ylist
 newer_biomass_list = res$biomass_list
 gg_after_chl_and_fsc = my_marginal_plotter(newer_ylist, newer_biomass_list, dates)
-## cowplot::plot_grid(plotlist = list(gg_init,
-##                                    gg_after_chl,
-##                                    gg_after_chl_and_fsc), ncol = 3)
 combined_plot = cowplot::plot_grid(plotlist = list(gg_init %>% add_title("initial",.99),
                                                    gg_after_chl %>% add_title("After CHL removal",.99),
                                                    gg_after_chl_and_fsc %>% add_title("After CHL&FSC removal",.99)),ncol = 1)
+plot(combined_plot)
 ggsave(filename = file.path(outputdir,
                             paste0(cruisename, "-censor-removal.pdf")),
        plot = combined_plot,
@@ -724,3 +724,9 @@ outfile = file.path(outputdir, filename)
 write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
 cat("wrote to", outfile, fill=TRUE)
 ```
+:::
+
+
+
+
+## Processing Seaflow data (only Gradients 1 through 5)
