@@ -88,7 +88,8 @@ if(FALSE){
 
 First, we will carry out the actual binning.
 
-```{r bin, eval = FALSE}
+```{r bin}
+#| eval: FALSE
 ## Focus on the Gradients cruises
 cruises = c("SCOPE_16", ## G1
             "MGL1704", ## G2
@@ -150,8 +151,10 @@ cleaning.
 
 
 
-```{r example-viz, fig.width = 12, fig.height = 16}
+```{r example-viz}
 #| output: false
+#| fig.width: 12
+#| fig.height: 16
 cruises = c("SCOPE_16", ## G1
             "MGL1704", ## G2
             "KM1906", ## G3
@@ -225,7 +228,7 @@ Here are some points that came up while cleaning data.
 cruisename = "KM1906"
 datadir = "~/Dropbox/data/ocean/seaflow/old"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
+datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -238,8 +241,11 @@ gg_init = my_marginal_plotter(ylist, biomass_list, dates)
 ## happening at the top Chl slice/bin, and (2) the bottom two fsc_small bins
 ## we'll also remove.
 tt = 170 ## print(dates[tt])
-obj = plotly_particle(cruisename, tt, 1)
-print(obj)
+# obj = plotly_particle(
+#   cruisename, tt, outputdir = outputdir, raw_data_dir = raw_data_dir, 
+#   show_censored = TRUE
+# )
+# print(obj)
 
 
 ## Remove top chl first
@@ -332,8 +338,8 @@ cat("wrote to", outfile, fill=TRUE)
 
 ## Example of how to load and reconstruct a |ylist| and |countslist| object.
 
-write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
-cat("wrote to", outfile, fill=TRUE)
+# write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
+# cat("wrote to", outfile, fill=TRUE)
 ```
 
 
@@ -349,7 +355,7 @@ cat("wrote to", outfile, fill=TRUE)
 cruisename = "MGL1704"
 datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
+datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow/old",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -364,8 +370,8 @@ gg_init = my_marginal_plotter(ylist, biomass_list, dates)
 ## Make a 3d particle plot to get a sense of how censoring has occurred
 tt = 296 + 57
 ##tt = 50
-obj = plotly_particle(cruisename, tt, 1)
-print(obj)
+# obj = plotly_particle(cruisename, tt, 1)
+# print(obj)
 
 ## Remove top chl bin first (next up is removing bottom fsc_small)
 res = my_edge_bin_remove(ylist, biomass_list, dimname = "chl_small", min_or_max = "max")
@@ -400,15 +406,15 @@ ggsave(filename =  file.path(outputdir,
 
 ## Make more 3d particle plots to get a sense of censoring
 ttlist = c(18,155,226,97)
-plotlist = lapply(ttlist, function(tt){
-  ## tt = 18
-  ## tt = 155
-  ## tt = 226
-  ## tt = 97 ## Not an error, but interesting to see.
-  obj = plotly_particle(cruisename, tt, show_censored = TRUE)
-  obj
-})
-cowplot::plot_grid(plotlist = plotlist, ncol = 2)
+# plotlist = lapply(ttlist, function(tt){
+#   ## tt = 18
+#   ## tt = 155
+#   ## tt = 226
+#   ## tt = 97 ## Not an error, but interesting to see.
+#   obj = plotly_particle(cruisename, tt, show_censored = TRUE)
+#   obj
+# })
+# cowplot::plot_grid(plotlist = plotlist, ncol = 2)
 
 
 ## Make all 3d plots
@@ -464,7 +470,7 @@ For G1, remove chl, then pe in order.
 cruisename = "SCOPE_16"
 datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
+datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -478,8 +484,8 @@ gg_init = my_marginal_plotter(ylist, biomass_list, dates)
 ## tt = 250
 ## tt = 310## Great example of censoring
 tt = 97 ## Also great example of censoring
-obj = plotly_particle(cruisename, tt, 1)
-print(obj)
+# obj = plotly_particle(cruisename, tt, 1)
+# print(obj)
 
 ## Remove top chl (first; next up is removing bottom fsc_small)
 res = my_edge_bin_remove(ylist, biomass_list, dimname = "chl_small", min_or_max = "max")
@@ -551,7 +557,7 @@ cat("wrote to", outfile, fill=TRUE)
 cruisename = "TN397_740"
 datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
+datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -565,8 +571,8 @@ gg_init = my_marginal_plotter(ylist, biomass_list, dates)
 ## Make a 3d particle plot to get a sense of censoring
 TT = length(ylist)
 tt = 250
-obj = plotly_particle(cruisename, tt, 1)
-obj
+# obj = plotly_particle(cruisename, tt, 1)
+# obj
 
 ## Remove top chl (first; next up is removing bottom fsc_small)
 res = my_edge_bin_remove(ylist, biomass_list, dimname = "chl_small", min_or_max = "max")
@@ -638,7 +644,7 @@ cat("wrote to", outfile, fill=TRUE)
 cruisename = "TN412_130" ## G5
 datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
+datlist <- csv_to_datlist("~/Dropbox/data/ocean/seaflow/old",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -654,8 +660,8 @@ gg_init = my_marginal_plotter(ylist, biomass_list, dates)
 TT = length(ylist)
 tt = 100
 tt = 36  ## Look at this next; are low PE particles also  high FSC (and high/low but not  mid CHL)?
-obj = plotly_particle(cruisename, tt, .1)
-print(obj)
+# obj = plotly_particle(cruisename, tt, .1)
+# print(obj)
 
 ## Remove top chl (first; next up is removing bottom fsc_small)
 res = my_edge_bin_remove(ylist, biomass_list, dimname = "chl_small", min_or_max = "max")

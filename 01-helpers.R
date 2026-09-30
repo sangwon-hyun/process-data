@@ -251,18 +251,16 @@ my_edge_bin_remove <- function(ylist, biomass_list, dimname, min_or_max, slack =
 #' @param tt Time point
 #' @param show_censored Show censoring points using different colors (defaults to TRUE)
 #' @param frac Fraction of the data to plot.
-plotly_particle <- function(cruisename, tt, show_censored = TRUE, frac = 0.1){
-
-  ## Hard-coded directories (this is a bad idea)
-  outputdir = "~/repos/process-data/output/seaflow" ##outputdir = "~/Dropbox/data/ocean/seaflow/2025-09-15"
-  raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"
-
+plotly_particle <- function(cruisename, tt, outputdir, raw_data_dir, show_censored = TRUE, frac = 0.1){
   ## Read particle-level data.
   vct_dir <- str_glue("{raw_data_dir}/{cruisename}/{cruisename}_vct_slim")
   vct_files <- list.files(vct_dir, "\\.parquet$", full.names = TRUE)
   list_of_df = lapply(1:length(vct_files), function(ifile){ read_parquet(vct_files[ifile]) })
-  vct <- bind_rows(list_of_df)
+  vct <- bind_rows(list_of_df) # FIXME: this crashes
   invisible(gc())
+
+  # TODO: one fix could be to only bind rows corresponding to hour tt
+  # TODO: for now, just skip this step
 
   ## Read in grid bins
   grid_bin_long_table = read.csv(file = file.path(outputdir, grid_filename))
@@ -356,7 +354,7 @@ plotly_particle <- function(cruisename, tt, show_censored = TRUE, frac = 0.1){
 }
 
 #' @param y Position of the text near the top.
-add_title<- function(myplot, mytitle, y = .97){
+add_title <- function(myplot, mytitle, y = .97){
   myplot %>%
     cowplot::ggdraw() +
     theme(plot.background = element_rect(color = "grey", size = 1)) +

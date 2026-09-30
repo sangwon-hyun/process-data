@@ -221,6 +221,26 @@ make_par_plot <- function(geodat, cruisename = ""){
   return(par_plot)
 }
 
+## Helper function for plotting matrix heatmaps
+drawmat_precise_ggplot <- function(distmat, colours = c("blue", "red"),
+                                   limits = NULL,
+                                   xlab = "", ylab = "", title = ""){
+  distmat <- as.matrix(distmat)
+  longData <- reshape2::melt(distmat[nrow(distmat):1, ])
+
+  p <- ggplot() +
+    geom_raster(aes(x = Var2, y = Var1, fill = value), data = longData) +
+    scale_fill_gradientn(colours = colours, guide = "colorbar", limits = limits) +
+    labs(x = xlab, y = ylab, title = title) +
+    theme_minimal() + 
+    theme(
+      axis.text.x = element_text(size = rel(1), angle = 90, vjust = 0.3),
+      axis.text.y = element_text(size = rel(1)),
+      plot.title = element_text(size = rel(1.5))
+    )
+  return(p)
+}
+
 ## Color scale for line plots
 custom_colors <- c(
     "lat"          = "black",

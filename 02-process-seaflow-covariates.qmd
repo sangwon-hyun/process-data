@@ -11,8 +11,7 @@ execute:
 
 In this section, we load the necessary R packages and set up matrix visualizers.
 
-```{r setup}
-#| label: setup-packages
+```{r setup-packages}
 
 ## Core tidyverse packages
 library(tidyverse)
@@ -197,14 +196,14 @@ for(cruisename in cruisenames){
           file = file.path(outputdir, filename))
 
   ## Plot the initial scaled variables across time: 
-  X_combined <- X_scaled %>% as_tibble() %>% mutate(time = time0,.before = 1)
-  scaled_plot <- X_combined %>% 
-    pivot_longer(-time) %>% 
-    ggplot() +
-    geom_path(aes(x = time, y = value, group = name), alpha = 0.1, linewidth = 0.1) +
-    theme_minimal() +
-    ggtitle("Scaled variables over time")
-  print(scaled_plot)
+  # X_combined <- X_scaled %>% as_tibble() %>% mutate(time = time0,.before = 1)
+  # scaled_plot <- X_combined %>% 
+  #   pivot_longer(-time) %>% 
+  #   ggplot() +
+  #   geom_path(aes(x = time, y = value, group = name), alpha = 0.1, linewidth = 0.1) +
+  #   theme_minimal() +
+  #   ggtitle("Scaled variables over time")
+  # print(scaled_plot)
 
 
   ## Analyze missingness patterns across all variables.
@@ -233,11 +232,11 @@ for(cruisename in cruisenames){
   X_scaled_copy0 <- X_scaled %>% as.matrix()
   dimnames(X_scaled_copy0) <- NULL
   
-  heatmap <- X_scaled_copy0 %>% 
-    .[, prop_missing < 0.25] %>% 
-    drawmat_precise_ggplot() + 
-    ggtitle("Matrix heatmap before imputation (<25% missing)")
-  print(heatmap)
+  # heatmap <- X_scaled_copy0 %>% 
+  #   .[, prop_missing < 0.25] %>% 
+  #   drawmat_precise_ggplot() + 
+  #   ggtitle("Matrix heatmap before imputation (<25% missing)")
+  # print(heatmap)
 
   ## Matrix Completion via Low-Rank SVD (`softImpute`); we'll
   ## fill missing values using nuclear-norm regularized singular value decomposition (`softImpute`).
@@ -252,9 +251,9 @@ for(cruisename in cruisenames){
     X_hat <- complete(X_scaled_copy, fit, unscale = FALSE)
 
     ## Visualize the result
-    heatmap2 <- drawmat_precise_ggplot(X_hat) +
-      ggtitle("Matrix heatmap after softImpute low-rank completion")
-    print(heatmap2)
+    # heatmap2 <- drawmat_precise_ggplot(X_hat) +
+    #   ggtitle("Matrix heatmap after softImpute low-rank completion")
+    # print(heatmap2)
 
     ## Compare imputed entries against original observed series:
     X_smaller <- X_scaled_copy
@@ -302,7 +301,7 @@ for(cruisename in cruisenames){
         strip.text = element_text(face = "bold")
       )
 
-    plot(imputed_plot)
+    print(imputed_plot)
 
   } else {
 
@@ -332,27 +331,27 @@ for(cruisename in cruisenames){
     group_by(time = lubridate::floor_date(time, "hour")) %>%
     summarize(across(where(is.numeric), mean), .groups = "drop")
 
-  hourly_plot <- X_imputed_hourly %>% 
-    select(-lat, -lon) %>%
-    pivot_longer(-time) %>%
-    ggplot() +
-    geom_line(aes(x = time, y = value, group = name), col = "blue", alpha = 0.2, linewidth = 0.1) +
-    scale_x_datetime(
-        breaks = "1 day",
-        labels = label_date("%b %d\n00:00") 
-    ) +
-    theme_minimal() +
-    theme(panel.grid.minor.x = element_blank()) +
-    ggtitle("Hourly aggregated variables over time")
-  plot(hourly_plot)
+  # hourly_plot <- X_imputed_hourly %>% 
+  #   select(-lat, -lon) %>%
+  #   pivot_longer(-time) %>%
+  #   ggplot() +
+  #   geom_line(aes(x = time, y = value, group = name), col = "blue", alpha = 0.2, linewidth = 0.1) +
+  #   scale_x_datetime(
+  #       breaks = "1 day",
+  #       labels = label_date("%b %d\n00:00") 
+  #   ) +
+  #   theme_minimal() +
+  #   theme(panel.grid.minor.x = element_blank()) +
+  #   ggtitle("Hourly aggregated variables over time")
+  # print(hourly_plot)
 
-  hourly_plot_over_lat <- X_imputed_hourly %>% 
-    pivot_longer(-c(time, lat, lon)) %>% 
-    ggplot(aes(x = lat, y = value, group = name)) +
-    geom_path(col = "blue", linewidth = 0.1, alpha = 0.2) +
-    theme_minimal() +
-    ggtitle("Hourly aggregated variables plotted across latitude")
-  plot(hourly_plot_over_lat)
+  # hourly_plot_over_lat <- X_imputed_hourly %>% 
+  #   pivot_longer(-c(time, lat, lon)) %>% 
+  #   ggplot(aes(x = lat, y = value, group = name)) +
+  #   geom_path(col = "blue", linewidth = 0.1, alpha = 0.2) +
+  #   theme_minimal() +
+  #   ggtitle("Hourly aggregated variables plotted across latitude")
+  # print(hourly_plot_over_lat)
 
   ## Save the imputed covariates in a single file;
   ## Saves to MGL1704-X-from-cmap-imputed-and-scaled.csv
@@ -376,7 +375,6 @@ cat("\n\n:::\n\n")
 #| warning: false
 #| message: false
 #| fig-width: 8
-
 #| fig-height: 5
 ```
 
@@ -399,7 +397,6 @@ knitr::knit_exit()
 Run PCA on observation time points across all imputed variables.
 
 ```{r pca-analysis}
-#| label: pca-analysis
 
 pca_res <- X_imputed_hourly %>% 
   select(-time, -lat, -lon) %>% 
@@ -411,7 +408,6 @@ pca_res <- X_imputed_hourly %>%
 ```
 
 ```{r fig-pca-components}
-#| label: fig-pca-components
 #| fig-width: 10
 #| fig-height: 6
 #| fig-cap: "First six principal components across time"
