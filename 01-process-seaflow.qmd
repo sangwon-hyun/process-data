@@ -44,7 +44,7 @@ source(here::here("01-helpers.R"))
 
 ## Where the original, particle-level data is
 ## (Change to your Dropbox/data directory locally.)
-## raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2024-09-23"
+# raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2024-09-23"
 raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"
 
 ## Bin resolution for each dimension
@@ -223,9 +223,9 @@ Here are some points that came up while cleaning data.
 
 ## Load binned data
 cruisename = "KM1906"
-datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+datadir = "~/Dropbox/data/ocean/seaflow/old"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/repos/process-data/output/seaflow",
+datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -347,9 +347,9 @@ cat("wrote to", outfile, fill=TRUE)
 
 ## Load binned data
 cruisename = "MGL1704"
-datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/repos/process-data/output/seaflow",
+datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -462,9 +462,9 @@ For G1, remove chl, then pe in order.
 
 ## Load binned data
 cruisename = "SCOPE_16"
-datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/repos/process-data/output/seaflow",
+datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -549,9 +549,9 @@ cat("wrote to", outfile, fill=TRUE)
 
 ## Load binned data
 cruisename = "TN397_740"
-datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/repos/process-data/output/seaflow",
+datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
@@ -636,9 +636,9 @@ cat("wrote to", outfile, fill=TRUE)
 
 ## Load binned data
 cruisename = "TN412_130" ## G5
-datadir = "/Users/sangwonh/repos/process-data/output/seaflow/"
+datadir = "~/Dropbox/data/ocean/seaflow"
 csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-datlist <- csv_to_datlist(outputdir = "~/repos/process-data/output/seaflow",
+datlist <- csv_to_datlist(outputdir = "~/Dropbox/data/ocean/seaflow",
                           csv_filename = csv_filename)
 ylist <- datlist$ylist
 biomass_list <- datlist$biomass_list
