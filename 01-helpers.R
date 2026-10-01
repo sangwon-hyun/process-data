@@ -15,7 +15,7 @@ csv_to_datlist <- function(outputdir, csv_filename){
 table_to_datlist <- function(hourly_gridded){
   ylist = hourly_gridded %>% group_by(date) %>% group_split() %>%
     lapply(function(df){
-      df %>% select(fsc_small_coord, chl_small_coord, pe_coord) %>% as.matrix()
+      df %>% dplyr::select(fsc_small_coord, chl_small_coord, pe_coord) %>% as.matrix()
     })
 
   biomass_list = hourly_gridded %>% group_by(date) %>% group_split() %>%
@@ -87,8 +87,8 @@ plot_1d_temp <- function (ylist, countslist, times, x = NULL, alpha = 0.1,
 
 plot_3d_temp <- function(tt, ylist, biomass_list, dates){
 
-  ## TODO: Set limits to the result of plot_2d() so that the plots all occupy
-  ## the same frame.
+  ## TODO: Set plot limits to the result of plot_2d() so that the plots all
+  ## occupy the same frame.
 
   dimslist = list(c(1:2), c(2:3), c(3,1))
   ## for(onedate in datetimes){
@@ -142,7 +142,6 @@ my_marginal_plotter <- function(ylist, biomass_list, dates = NULL, normalize_by_
 
   plotlist = lapply(1:3, function(idim){
 
-
     capture.output({
       datobj_1d = flowmix::collapse_3d_to_1d(ylist = ylist, countslist = biomass_list, idim = idim)
     })
@@ -190,18 +189,27 @@ my_marginal_plotter <- function(ylist, biomass_list, dates = NULL, normalize_by_
 
 #' Simple helper function to remove bin
 #'
+#' @param res List containing ylist and biomass_list
+#' @param ylist
+#' @param biomass_list
 #' @param dimname must be one of c("fsc_small", "chl_small", "pe")
 #' @param min_or_max must be one of c("min", "max")
 #' @param slack if zero, only remove edge bin; if 1, remove two edge bins.
-my_edge_bin_remove <- function(ylist, biomass_list, dimname, min_or_max, slack = 0){
+my_edge_bin_remove <- function(res=NULL, ylist = NULL, biomass_list=NULL, dimname, min_or_max, slack = 0){
 
   ## Basic check
   stopifnot(dimname %in% c("fsc_small", "chl_small", "pe"))
   stopifnot(min_or_max %in% c("min", "max"))
   dimname = paste0(dimname, "_coord")
 
-  newer_biomass_list = biomass_list
-  newer_ylist = ylist
+  if(!is.null(res)){
+    newer_biomass_list = biomass_list = res$biomass_list
+    newer_ylist = ylist = res$ylist
+  }
+  if(is.null(res)){
+    newer_biomass_list = biomass_list
+    newer_ylist = ylist
+  }
   discarded_biomass_list = list()
   discarded_ylist = list()
 
@@ -227,9 +235,9 @@ my_edge_bin_remove <- function(ylist, biomass_list, dimname, min_or_max, slack =
       irow_to_remove = which(one_y[,dimname] >= bin_to_remove)
     }
     if(length(irow_to_remove) > 0){
-      newer_ylist[[tt]] = one_y[-irow_to_remove,]
+      newer_ylist[[tt]] = one_y[-irow_to_remove,,drop=FALSE]
       newer_biomass_list[[tt]] = one_count[-irow_to_remove]
-      discarded_ylist[[tt]] = one_y[irow_to_remove,]
+      discarded_ylist[[tt]] = one_y[irow_to_remove,,drop=FALSE]
       discarded_biomass_list[[tt]] = one_count[irow_to_remove]
     } else {
       discarded_ylist[[tt]] = one_y[c(),]
@@ -252,15 +260,18 @@ my_edge_bin_remove <- function(ylist, biomass_list, dimname, min_or_max, slack =
 
 
 #' Plot particle-level 3d cytogram at time tt. Shows only a fraction of the data.
+#'
 #' @param cruisename Cruise name (string).
 #' @param tt Time point
 #' @param show_censored Show censoring points using different colors (defaults to TRUE)
 #' @param frac Fraction of the data to plot.
-plotly_particle <- function(cruisename, tt, show_censored = TRUE, frac = 0.1){
+#' @param grid_filename Shows the file containing the grid definition.
+plotly_particle <- function(cruisename, tt, show_censored = TRUE, frac = 0.1,
+                            grid_filename = "grid.csv",
+                            ## Hard-coded directories (this is a bad idea)
+                            outputdir = "~/repos/process-data/output/seaflow",
+                            raw_data_dir = "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"){
 
-  ## Hard-coded directories (this is a bad idea)
-  outputdir = "~/repos/process-data/output/seaflow" ##outputdir = "~/Dropbox/data/ocean/seaflow/2025-09-15"
-  raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"
 
   ## Read particle-level data.
   vct_dir <- str_glue("{raw_data_dir}/{cruisename}/{cruisename}_vct_slim")
@@ -294,33 +305,27 @@ plotly_particle <- function(cruisename, tt, show_censored = TRUE, frac = 0.1){
   hourly_gridded <- vct %>%
     group_by(date=floor_date(date, "1 hours"), across(ends_with("_coord")))
 
-  ## cruisename = "SCOPE_16"
-  ## cruisename = "KM1906"
-  ## cruisename = "MGL1704"
-  ## csv_filename = paste0(cruisename, "-gridded-before-cleaning-new.csv")
-  ## hourly_gridded = read.csv(file = file.path(outputdir, csv_filename)) %>% as_tibble()
-
-  a = hourly_gridded %>% group_by(date) %>% group_split() %>% .[[tt]]
 
   ## 3. Generate the 3D plot
-  a_small = a %>% sample_frac(frac)
+  a = hourly_gridded %>% group_by(date) %>% group_split() %>% .[[tt]]
+  a_small = a %>% dplyr::sample_frac(frac)
 
   if(show_censored){
-  max_fsc = a_small %>% summarize(max(fsc_small_coord)) %>% unlist()
-  max_chl = a_small %>% summarize(max(chl_small_coord)) %>% unlist()
-  max_pe  = a_small %>% summarize(max(pe_coord)) %>% unlist()
+    max_fsc = a_small %>% summarize(max(fsc_small_coord)) %>% unlist()
+    max_chl = a_small %>% summarize(max(chl_small_coord)) %>% unlist()
+    max_pe  = a_small %>% summarize(max(pe_coord)) %>% unlist()
 
-  min_fsc = a_small %>% summarize(min(fsc_small_coord)) %>% unlist()
-  min_chl = a_small %>% summarize(min(chl_small_coord)) %>% unlist()
-  min_pe  = a_small %>% summarize(min(pe_coord)) %>% unlist()
+    min_fsc = a_small %>% summarize(min(fsc_small_coord)) %>% unlist()
+    min_chl = a_small %>% summarize(min(chl_small_coord)) %>% unlist()
+    min_pe  = a_small %>% summarize(min(pe_coord)) %>% unlist()
 
-  a_small = a_small %>%
-    mutate(color = ifelse(pe_coord==max_pe |
-                          pe_coord == min_pe |
-                          chl_small_coord == max_chl |
-                          chl_small_coord == min_chl |
-                          fsc_small_coord == max_fsc |
-                          fsc_small_coord == min_fsc, "red", "blue"))
+    a_small = a_small %>%
+      mutate(color = ifelse(pe_coord==max_pe |
+                            pe_coord == min_pe |
+                            chl_small_coord == max_chl |
+                            chl_small_coord == min_chl |
+                            fsc_small_coord == max_fsc |
+                            fsc_small_coord == min_fsc, "red", "blue"))
   } else {
     a_small = a_small %>% mutate(color = "blue")
   }
@@ -381,22 +386,27 @@ add_title<- function(myplot, mytitle, y = .97){
 #' @param ylist binned
 #' @param biomass_list binned
 recombine_to_csv <- function(ylist, biomass_list, dates){
+
   dates_list <- dates %>% as.list()
+
   recombined_list <- purrr::pmap(list(dates_list, ylist, biomass_list), function(date_str, coords_matrix, qc_vector) {
     coords_tibble <- as_tibble(coords_matrix, .name_repair = "unique")
     colnames(coords_tibble) <- c("fsc_small_coord", "chl_small_coord", "pe_coord") # Rename columns
     coords_tibble %>%
       mutate(date = date_str, Qc = qc_vector)
   })
-  hourly_gridded_reconstructed <- bind_rows(recombined_list) %>%
-    select(date, fsc_small_coord, chl_small_coord, pe_coord, Qc)
+
+  hourly_gridded_reconstructed <-
+    bind_rows(recombined_list) %>%
+    dplyr::select(date, fsc_small_coord, chl_small_coord, pe_coord, Qc)
+
   return(hourly_gridded_reconstructed)
 }
 
 
 
 #' Combine back to a censored bin table.
-recombine_censored_data <- function(all_ylists, all_biomass_lists){
+recombine_censored_data <- function(all_ylists, all_biomass_lists, dates){
 
   ## all_ylists = list(ylist_cens_after_chl, ylist_cens_after_chl_and_fsc)
   ## all_biomass_lists = list(biomass_list_cens_after_chl, biomass_list_cens_after_chl_and_fsc)
