@@ -46,7 +46,7 @@ source(here::here("01-helpers.R"))
 ## Where the original, particle-level data is
 ## (Change to your Dropbox/data directory locally.)
 # raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2024-09-23"
-raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2025-11-21"
+raw_data_dir <- "~/Dropbox/data/ocean/raw-seaflow/particle-data-2026-09-29"
 ```
 
 Here, we set some things up for gridding and binning the particle-level data.
@@ -96,17 +96,122 @@ First, we will carry out the actual binning.
 ```{r bin}
 #| eval: FALSE
 ## Focus on the Gradients cruises
-cruises = c("SCOPE_16", ## G1
-            "MGL1704", ## G2
-            "KM1906", ## G3
-            "TN397_740", ## G4
-            "TN412_130") ## G5
+cruises = c(
+  # "SCOPE_16", ## G1
+  # "MGL1704", ## G2
+  # "KM1906", ## G3
+  # "TN397_740", ## G4
+  # "TN412_130" ## G5
+  # "HOT302"
+  # "CMOP_3",
+  # "GP15_1",
+  # "HOT297",
+  # "HOT299",
+  # "HOT300",
+  # "HOT301",
+  # "HOT303",
+  # "HOT307",
+  # "HOT308",
+  # "HOT309",
+  # "HOT310",
+  # "HOT312",
+  # "HOT313",
+  # "HOT314",
+  # "HOT315",
+  # "HOT317",
+  # "HOT318",
+  # "HOT319",
+  # "HOT321",
+  # "HOT323",
+  # "HOT324",
+  # "HOT325",
+  # "HOT326",
+  # "HOT328",
+  # "HOT329",
+  # "HOT330",
+  # "HOT331",
+  # "HOT332",
+  # "HOT335",
+  # "HOT336",
+  # "HOT337",
+  # "HOT338",
+  # "HOT-294",
+  # "KM1712",
+  # "KM1906_towfish",
+  # "KM1919",
+  # "KM1923_751",
+  # "KOK1806",
+  # "MBARI_2",
+  # "SCOPE_1",
+  # "TN265",
+  # "TN266",
+  # "TN267",
+  # "TN396_740",
+  # "TN413",
+  # "TN414",
+  # "Thompson_0",
+  # "Thompson_1",
+  # "Thompson_3",
+  # "Thompson_4",
+  # "Thompson_5",
+  # "Thompson_6",
+  # "Thompson_9",
+  # "Thompson_10",
+  # "Thompson_11",
+  # "Thompson_12",
+  # "Tokyo_1",
+  # "Tokyo_2",
+  # "SCOPE_4",
+  # "SCOPE_5",
+  # "SCOPE_9",
+  # "SCOPE_10",
+  # "SCOPE_11",
+  # "SCOPE_12",
+  # "SCOPE_13",
+  # "SCOPE_14",
+  # "SCOPE_15",
+  # "SCOPE_17",
+  # "SCOPE_18",
+  # "SCOPE_19",
+  # "SCOPE-PARAGON",
+  # "SCOPE-PARAGONII",
+  # "DeepDOM",       # crashed; do later on HPC
+  # "GP15_2",        # crashed; do later on HPC
+  # "HOT304",        # crashed; do later on HPC
+  # "HOT322",        # crashed; do later on HPC
+  # "KiloMoana_1",   # crashed; do later on HPC
+  # "KM1713",        # crashed; do later on HPC
+  # "KM1920",        # crashed; do later on HPC
+  # "KM1923_740",    # crashed; do later on HPC
+  # "KM2206_740",    # crashed; do later on HPC
+  # "KOK1805",       # crashed; do later on HPC
+  # "MBARI_1",       # crashed; do later on HPC
+  # "MBARI_3",       # crashed; do later on HPC
+  # "MESO_SCOPE",    # crashed; do later on HPC
+  # "SCOPE_2",       # crashed; do later on HPC
+  # "TN398",         # crashed; do later on HPC
+  # "SCOPE_3",       # crashed; do later on HPC
+  # "SCOPE_6",       # crashed; do later on HPC
+  # "SCOPE_Falkor1", # crashed; do later on HPC
+  # "SCOPE_Falkor2", # crashed; do later on HPC
+  # "SR1917"         # crashed; do later on HPC
+) 
 
 for(cruisename in cruises){
+  cat(cruisename, "\n")
 
   ## Read particle-level data.
   vct_dir <- str_glue("{raw_data_dir}/{cruisename}/{cruisename}_vct_slim")
   vct_files <- list.files(vct_dir, "\\.parquet$", full.names = TRUE)
+
+  cat("Length of cruise =", length(vct_files), "cytograms.", "\n")
+
+  # CYTOGRAM_LIMIT <- 206
+  # if(length(vct_files) >= CYTOGRAM_LIMIT) {
+  #   cat("Too many cytograms; skipping cruise", cruisename, "for now.", "\n")
+  #   next
+  # }
+
   list_of_df = lapply(1:length(vct_files), function(ifile){ read_parquet(vct_files[ifile]) })
   vct <- bind_rows(list_of_df)
   invisible(gc())
@@ -154,23 +259,16 @@ for(cruisename in cruises){
 Let's see, for every cruise, 1d plots for all 3 dimensions. This is *before* any
 cleaning.
 
-
-
 ```{r example-viz}
 #| output: false
 #| fig.width: 12
 #| fig.height: 16
-cruises = c("SCOPE_16", ## G1
-            "MGL1704", ## G2
-            "KM1906", ## G3
-            "TN397_740", ## G4
-            "TN412_130") ## G5
 
 for(cruisename in cruises){
 
   ## Load data
   csv_filename = paste0(cruisename, "-gridded-before-cleaning.csv")
-  datlist <- csv_to_datlist(outputdir = outputdir, ## TODO: 
+  datlist <- csv_to_datlist(outputdir = outputdir,
                             csv_filename = csv_filename)
   ylist <- datlist$ylist
   biomass_list <- datlist$biomass_list
@@ -194,9 +292,7 @@ for(cruisename in cruises){
 }
 ```
 
-
 ## Data cleaning notes
-
 
 Next, we will clean/process the binned data.
 
@@ -346,9 +442,7 @@ write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
 cat("wrote to", outfile, fill=TRUE)
 ```
 
-
 ### Cleaning Gradients2
-
 
 ```{r clean-g2}
 #| fig-width: 12
@@ -453,8 +547,6 @@ write.csv(hourly_gridded_censored_reconstructed, file = outfile, row.names = FAL
 cat("wrote to", outfile, fill=TRUE)
 ```
 
-
-
 ### Cleaning Gradients 1  
 
 For G1, remove chl, then pe in order.
@@ -544,9 +636,7 @@ write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
 cat("wrote to", outfile, fill=TRUE)
 ```
 
-
 ### Cleaning Gradients 4
-
 
 ```{r clean-g4}
 #| fig-width: 12
@@ -630,7 +720,6 @@ outfile = file.path(outputdir, filename)
 write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
 cat("wrote to", outfile, fill=TRUE)
 ```
-
 
 ### Cleaning Gradients 5
 
@@ -726,7 +815,226 @@ cat("wrote to", outfile, fill=TRUE)
 ```
 :::
 
+## Cleaning HOT_302
+
+```{r clean-hot302}
+#| fig-width: 12
+#| fig-height: 36
+
+## Load binned data
+cruisename = "HOT302"
+csv_filename = paste0(cruisename, "-gridded-before-cleaning.csv")
+datlist <- csv_to_datlist(outputdir = outputdir,
+                          csv_filename = csv_filename)
+ylist <- datlist$ylist
+biomass_list <- datlist$biomass_list
+dates <- datlist$datetimes
+
+## Plotting before processing
+gg_init = my_marginal_plotter(ylist, biomass_list, dates)
+
+# tt = 1
+# tt = 8
+# tt = 17
+# tt = 33
+# tt = 18
+# flowtrend::plot_3d(ylist, tt = tt, countslist = biomass_list)
+# upper fsc censoring
+# chl maybe borderline censoring, but it's mostly on the edge of fsc as well
+
+## Remove top fsc bin first
+res = my_edge_bin_remove(ylist, biomass_list, dimname = "fsc_small", min_or_max = "max", 0)
+new_ylist = res$ylist
+new_biomass_list = res$biomass_list
+ylist_cens_after_fsc = res$ylist_cens
+biomass_list_cens_after_fsc = res$biomass_list_cens
+gg_after_fsc = my_marginal_plotter(new_ylist, new_biomass_list, dates)
+
+# tt = 1
+# tt = 17
+# tt = 33
+# tt = 36
+# tt = 31
+# flowtrend::plot_3d(new_ylist, tt = tt, countslist = new_biomass_list)
+
+## Remove top chl too
+res = my_edge_bin_remove(new_ylist, new_biomass_list, dimname = "chl_small", min_or_max = "max")
+newer_ylist = res$ylist
+newer_biomass_list = res$biomass_list
+ylist_cens_after_chl_and_fsc = res$ylist_cens
+biomass_list_cens_after_chl_and_fsc = res$biomass_list_cens
+gg_after_chl_and_fsc = my_marginal_plotter(newer_ylist, newer_biomass_list, dates)
+
+combined_plot <-
+cowplot::plot_grid(plotlist = list(gg_init %>% add_title("initial",.99),
+                                   gg_after_fsc %>% add_title("After FSC removal",.99),
+                                   gg_after_chl_and_fsc %>% add_title("After FSC&CHL removal",.99)),ncol = 1) 
+plot(combined_plot)
+ggsave(filename =  file.path(outputdir,
+                             paste0(cruisename, "-censor-removal.pdf")),
+       plot = combined_plot,
+       width = 10, height = 30)
+
+## Make more 3d particle plots to get a sense of censoring
+# ttlist = c(1, 17, 25, 31, 33, 36)
+# plotlist = lapply(ttlist, function(tt){
+#   ## tt = 18
+#   ## tt = 155
+#   ## tt = 226
+#   ## tt = 97 ## Not an error, but interesting to see.
+#   obj = plotly_particle(cruisename, tt, show_censored = TRUE)
+#   obj
+# })
+# cowplot::plot_grid(plotlist = plotlist, ncol = 2)
+
+## Remove some specific dates
+tt_vec <- c(5, 12, 19, 22, 39)
+newest_dates = dates[-tt_vec]
+newest_ylist = newer_ylist[-tt_vec]
+newest_biomass_list = newer_biomass_list[-tt_vec]
+gg_after_date_removal = my_marginal_plotter(newest_ylist, newest_biomass_list, dates = newest_dates)
+
+# Print the object so Quarto captures it for the HTML output
+combined_plot = cowplot::plot_grid(plotlist = list(gg_init %>% add_title("initial",.99),
+                                   gg_after_fsc %>% add_title("After FSC removal",.99),
+                                   gg_after_chl_and_fsc %>% add_title("After FSC&CHL removal",.99), 
+                                   gg_after_date_removal%>% add_title("After removing some cytograms",.99)), ncol = 1)  
+plot(combined_plot)
 
 
+# 2. Save the PDF to your directory
+ggsave(filename = file.path(outputdir, paste0(cruisename, "-censor-removal.pdf")),
+       plot = combined_plot, width = 10, height = 40)
+
+## Make the 3d plots for those dates that were removed
+removed_cytogram_plot <-
+  cowplot::plot_grid(plotlist =
+                       lapply(tt_vec, function(tt) plot_3d_temp(ylist = newer_ylist, biomass_list = newer_biomass_list, tt = tt, dates = dates)),
+                     ncol = 1) %>% 
+  ggpubr::annotate_figure(top = ggpubr::text_grob(paste0(
+                                            "Hourly cytogram that were removed\n",
+                                            paste(dates[tt_vec], collapse = " \n ")),
+                                            color = "black", face = "bold", size = 10))
+
+print(removed_cytogram_plot)
+
+ggsave(filename =  file.path(outputdir,
+                             paste0(cruisename, "-removed-cytograms.pdf")),
+       plot = removed_cytogram_plot,
+       width = 8, height = 15)
+
+
+## Make all 3d plots
+if(FALSE){
+  dir.create(file.path(outputdir, paste0(cruisename, "-3d-plots")))
+  # list.files(outputdir)
+  TT = length(newest_ylist)
+  for(tt in 1:TT){
+    print(tt)
+    plot_3d_temp(ylist = newest_ylist,
+                 biomass_list = newest_biomass_list,
+                 tt = tt,
+                 dates = newest_dates)  %>% 
+      ggsave(filename =  file.path(outputdir,
+                                   paste0(cruisename, "-3d-plots"),
+                                   paste0(cruisename, "-", tt, ".png")),
+             width = 20, height = 7) 
+  }
+}
+
+## Combine these things back into a csv-saveable table.
+hourly_gridded_reconstructed = recombine_to_csv(newest_ylist, newest_biomass_list, newest_dates)
+
+## Each cruise's data is now saved to a file
+filename = paste0(cruisename, "-gridded-after-cleaning.csv")
+outfile = file.path(outputdir, filename)
+write.csv(hourly_gridded_reconstructed, file = outfile, row.names = FALSE)
+cat("wrote to", outfile, fill=TRUE)
+
+## Also save the censored data
+hourly_gridded_censored_reconstructed =
+  recombine_censored_data(
+      all_ylists = list(ylist_cens_after_fsc, ylist_cens_after_chl_and_fsc),
+      all_biomass_lists = list(biomass_list_cens_after_fsc, biomass_list_cens_after_chl_and_fsc))
+filename = paste0(cruisename, "-gridded-after-cleaning-censored.csv")
+outfile = file.path(outputdir, filename)
+write.csv(hourly_gridded_censored_reconstructed, file = outfile, row.names = FALSE)
+cat("wrote to", outfile, fill=TRUE)
+```
+
+## Cleaning CMOP_3
+
+ <!-- # "CMOP_3",
+  # "GP15_1",
+  # "HOT297",
+  # "HOT299",
+  # "HOT300",
+  # "HOT301",
+  # "HOT303",
+  # "HOT307",
+  # "HOT308",
+  # "HOT309",
+  # "HOT310",
+  # "HOT312",
+  # "HOT313",
+  # "HOT314",
+  # "HOT315",
+  # "HOT317",
+  # "HOT318",
+  # "HOT319",
+  # "HOT321",
+  # "HOT323",
+  # "HOT324",
+  # "HOT325",
+  # "HOT326",
+  # "HOT328",
+  # "HOT329",
+  # "HOT330",
+  # "HOT331",
+  # "HOT332",
+  # "HOT335",
+  # "HOT336",
+  # "HOT337",
+  # "HOT338",
+  # "HOT-294",
+  # "KM1712",
+  # "KM1906_towfish",
+  # "KM1919",
+  # "KM1923_751",
+  # "KOK1806",
+  # "MBARI_2",
+  # "SCOPE_1",
+  # "TN265",
+  # "TN266",
+  # "TN267",
+  # "TN396_740",
+  # "TN413",
+  # "TN414",
+  # "Thompson_0",
+  # "Thompson_1",
+  # "Thompson_3",
+  # "Thompson_4",
+  # "Thompson_5",
+  # "Thompson_6",
+  # "Thompson_9",
+  # "Thompson_10",
+  # "Thompson_11",
+  # "Thompson_12",
+  # "Tokyo_1",
+  # "Tokyo_2",
+  # "SCOPE_4",
+  # "SCOPE_5",
+  # "SCOPE_9",
+  # "SCOPE_10",
+  # "SCOPE_11",
+  # "SCOPE_12",
+  # "SCOPE_13",
+  # "SCOPE_14",
+  # "SCOPE_15",
+  # "SCOPE_17",
+  # "SCOPE_18",
+  # "SCOPE_19",
+  # "SCOPE-PARAGON",
+  # "SCOPE-PARAGONII", -->
 
 ## Processing Seaflow data (only Gradients 1 through 5)
