@@ -205,26 +205,26 @@ cruises = c(
   # "SCOPE_19",
   # "SCOPE-PARAGON",
   # "SCOPE-PARAGONII",
-  # "DeepDOM",       # crashed; do later on HPC
-  # "GP15_2",        # crashed; do later on HPC
-  # "HOT304",        # crashed; do later on HPC
-  # "HOT322",        # crashed; do later on HPC
-  # "KiloMoana_1",   # crashed; do later on HPC
-  # "KM1713",        # crashed; do later on HPC
-  # "KM1920",        # crashed; do later on HPC
-  # "KM1923_740",    # crashed; do later on HPC
-  # "KM2206_740",    # crashed; do later on HPC
-  # "KOK1805",       # crashed; do later on HPC
-  # "MBARI_1",       # crashed; do later on HPC
-  # "MBARI_3",       # crashed; do later on HPC
-  # "MESO_SCOPE",    # crashed; do later on HPC
-  # "SCOPE_2",       # crashed; do later on HPC
-  # "TN398",         # crashed; do later on HPC
-  # "SCOPE_3",       # crashed; do later on HPC
-  # "SCOPE_6",       # crashed; do later on HPC
-  # "SCOPE_Falkor1", # crashed; do later on HPC
-  # "SCOPE_Falkor2", # crashed; do later on HPC
-  # "SR1917"         # crashed; do later on HPC
+  # "DeepDOM",       
+  # "GP15_2",        
+  # "HOT304",        
+  # "HOT322",        
+  # "KiloMoana_1",   
+  # "KM1713",        
+  # "KM1920",        
+  # "KM1923_740",    
+  # "KM2206_740",    
+  # "KOK1805",       
+  # "MBARI_1",       
+  # "MBARI_3",       
+  # "MESO_SCOPE",    
+  # "SCOPE_2",       
+  # "TN398",         
+  # "SCOPE_3",       
+  # "SCOPE_6",       
+  # "SCOPE_Falkor1", 
+  # "SCOPE_Falkor2", 
+  # "SR1917"         
 ) 
 
 for(cruisename in cruises){
@@ -987,7 +987,6 @@ cat("\n\n:::\n\n")
 ## Make all 3d plots
 for(cruisename in cruisenames_other){
 
-  cruisename = "Thompson_3"
   dir.create(file.path(outputdir, cruisename, "3d-plots"))
 
   ## Load
@@ -1018,3 +1017,105 @@ for(cruisename in cruisenames_other){
   }
 }
 ```
+
+Noting "weird" cytogram indices
+
+```{r weird-cytograms}
+weird_cytograms <- list(
+  "HOT302" = c(5, 12, 19, 22, 39),
+  "HOT330" = c(30, 42, 92), # FIXME: improper censoring?
+  "Thompson_12" = c(50),
+  "KM1906_towfish" = c(87),
+  "HOT319" = c(6), # FIXME: improper censoring?
+  "TN396_740" = c(1, 80),
+  "Thompson_0" = c(2), # FIXME: improper censoring?
+  "HOT308" = c(), # Looks fine
+  "DeepDOM" = c(1, 169, 171, 173, 264, 399, 401, 404, 456, 463, 470, 477, 484, 489),
+  "TN267" = c(1:23, 98, 113), # FIXME: improper censoring?
+  "HOT331" = c(1), # FIXME: improper censoring?
+  "GP15_1" = c(22, 76),
+  "Tokyo_1" = c(4, 47. 136, 150, 183, 184),
+  "SCOPE_9" = c(), # Looks fine
+  "HOT304" = c(), # Looks fine
+  "HOT329" = c(), # Looks fine
+  "Thompson_9" = c(), # TODO: Check censoring
+  "SCOPE_17" = c(6, 18, 24, 27, 29), # TODO: check censoring
+  "HOT317" = c(2, 4, 8), # TODO: check censoring
+  "KM2206_740" = c(), # Looks fine
+  "SCOPE_6" = c(113, 134, 180, 181, 229), 
+  "TN414" = c(1, 72),
+  "HOT309" = c(16, 22, 37),
+  "KOK1805" = c(80, 93),
+  "HOT312" = c(32),
+  "Thompson_4" = c(1, 8, 10, 60),
+  "KM1923_751" = c(80, 91, 94, 98, 121, 125, 127, 130, 135, 141:152, 169, 186),
+  "HOT335" = c(68), # TODO: check censoring
+  "SCOPE_3" = c(1, 14, 35, 54, 55, 71),
+  "HOT299" = c(26),
+  "HOT332" = c(7, 21, 35, 37, 41, 43, 49), # TODO: check censoring
+  "SCOPE_11" = c(1, 52, 54, 64), # TODO: check censoring
+  "HOT324" = c(1:6), # TODO: check censoring (short cruise, entire thing is weird)
+  "MBARI_3" = c(106, 109, 136, 206),
+  "SCOPE_10" = c(1, 16, 24, 29, 30),
+  "HOT336" = c(90), # TODO: check censoring
+  "TN265" = c(5, 9:18, 33:37, 43, 46, 68, 69, 72, 88:93, 96, 131:139, 152, 164, 197, 209),
+  "SCOPE_5" = c(6), # TODO: check censoring
+  "HOT300" = c(57), # TODO: check censoring
+  "Tokyo_2" = c(11, 20, 31, 47, 80, 85, 138, 151, 181, 182, 235, 243),
+  "SCOPE_18" = c(45, 85), # TODO: check censoring
+  "KOK1806" = c(16), # TODO: check censoring
+  "MBARI_1" = c(93), # TODO: check censoring
+  "Thompson_6" = c(18), # TODO: check censoring
+  "MBARI_2" = c(45), 
+  "HOT326" = c(8, 10, 14), # TODO: check censoring
+  "HOT-294" = c(), # TODO: check censoring
+  "HOT325" = c(1:4), # TODO: check censoring
+  "TN413" = c(25, 220, 221, 268, 271), # TODO: check censoring
+  "KM1713" = c(378), # Really strong signal
+  "TN398" = c(), # TODO: check censoring # Really strong signal, and not the typical "hawaii - alaska" trajectory. Hawaii to Baja. 
+  "Thompson_3" = c(7), # TODO: check censoring
+  "SCOPE_19" = c(10), # TODO: check censoring  
+  "SCOPE_1" = c(), # TODO: check censoring  
+  "HOT337" = c(57), # TODO: check censoring  
+  "SCOPE_2" = c(51, 88), # TODO: check censoring   # Strong signal
+  "KM1712" = c(106, 126, 196, 197, 251, 485), # TODO: check censoring  
+  "HOT301" = c(2, 49),  # TODO: check censoring  
+  "HOT318" = c(2:5, 8:11, 18, 20, 24), # TODO: check censoring  
+  "HOT303" = c(), # TODO: check censoring  # TODO: ask Francois what's up with the dots along high fsc, low chl
+  "CMOP_3" = c(3, 8, 13, 19, 42, 60), # TODO: check censoring  
+  "HOT315" = c(4), # TODO: check censoring  
+  "HOT323" = c(4:6, 29, 34, 35), # TODO: check censoring  
+  "HOT338" = c(), # TODO: check censoring
+  "Thompson_11" = c(1, 24, 42, 76, 78, 79, 113, 119:124),
+  "HOT313" = c(17, 22), # TODO: check censoring
+  "SR1917" = c(5, 8, 11, 53, 56, 69, 72, 80, 83:86, 95, 99, 102:111, 124:132, 148:149, 170:171, 176, 465, 472), # TODO: check censoring
+  "SCOPE-PARAGONII" = c(51, 52, 96:98, 110), # TODO: check censoring
+  "SCOPE_Falkor2" = c(162, 206), # TODO: check censoring
+  "TN266" = c(1:33, 46:49, 51, 74:85, 103, 107:114, 129:151, 185, 217), # TODO: check censoring
+  "KiloMoana_1" = c(1:6, 274, 275, 323, 331:336, 374, 378, 430:431, 526, 535, 605),
+  "SCOPE-PARAGON" = c(48), # TODO: check censoring
+  "Thompson_5" = c(42:43, 81),
+  "Thompson_1" = c(18, 43, 66, 71), # TODO: check censoring
+  "SCOPE_Falkor1" = c(237, 238), # TODO: check censoring
+  "SCOPE_4" = c(1, 29), # TODO: check censoring
+  "KM1920" = c(89), # TODO: check censoring
+  "KM1919" = c(20),
+  "KM1923_740" = c(18, 21, 137, 138), # TODO: check censoring
+  "HOT321" = c(13:14, 24, 32:34, 40, 55), # TODO: check censoring
+  "HOT314" = c(3:7), # TODO: check censoring
+  "HOT297" = c(11), # TODO: check censoring
+  "HOT328" = c(1, 2, 8, 66, 67, 91), # TODO: check censoring
+  "HOT310" = c(1, 65), # TODO: check censoring
+  "HOT322" = c(1), # TODO: check censoring
+  "HOT307" = c(), # TODO: check censoring
+  "MESO_SCOPE" = c(124, 199, 264), # TODO: check censoring
+  "GP15_2" = c(68, 201, 206, 348), # TODO: check censoring
+  "SCOPE_13" = c(), # TODO: check censoring
+  "Thompson_10" = c(53), # Really interesting
+  "SCOPE_12" = c(1, 27, 28, 38), # TODO: check censoring
+  "SCOPE_14" = c(7), # TODO: check censoring
+  "SCOPE_15" = c(9. 72, 76:77) # TODO: check censoring
+)
+```
+
+<!-- TODO: print the results, tabset, with before and after for each flagged cytogram. Then add some comments. -->
