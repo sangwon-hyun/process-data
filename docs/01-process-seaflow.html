@@ -9,7 +9,7 @@
 <meta name="author" content="Sangwon Hyun">
 <meta name="dcterms.date" content="2026-10-21">
 
-<title>3&nbsp; Processing Seaflow data – Documenting Data Processing</title>
+<title>2&nbsp; Processing Seaflow data – Documenting Data Processing</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -74,7 +74,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./02-process-seaflow-covariates.html" rel="next">
-<link href="./00-setup.html" rel="prev">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -125,7 +125,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-process-seaflow.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processing Seaflow data</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-process-seaflow.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Processing Seaflow data</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -158,26 +158,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./00-setup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Setup for this book</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./01-process-seaflow.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processing Seaflow data</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Processing Seaflow data</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./02-process-seaflow-covariates.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data imputation and visualization for Environmental Factors</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Data imputation and visualization for Environmental Factors</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./03-add-onboard-covariates.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Adding on-board covariates</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Adding on-board covariates</span></span></a>
   </div>
 </li>
     </ul>
@@ -190,18 +184,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#processing-seaflow-data-only-gradients-1-through-5" id="toc-processing-seaflow-data-only-gradients-1-through-5" class="nav-link active" data-scroll-target="#processing-seaflow-data-only-gradients-1-through-5"><span class="header-section-number">3.1</span> Processing Seaflow data (only Gradients 1 through 5)</a></li>
-  <li><a href="#binning-all-cruises" id="toc-binning-all-cruises" class="nav-link" data-scroll-target="#binning-all-cruises"><span class="header-section-number">3.2</span> Binning all cruises</a></li>
-  <li><a href="#data-cleaning-notes" id="toc-data-cleaning-notes" class="nav-link" data-scroll-target="#data-cleaning-notes"><span class="header-section-number">3.3</span> Data cleaning notes</a>
+  <li><a href="#processing-seaflow-data-only-gradients-1-through-5" id="toc-processing-seaflow-data-only-gradients-1-through-5" class="nav-link active" data-scroll-target="#processing-seaflow-data-only-gradients-1-through-5"><span class="header-section-number">2.1</span> Processing Seaflow data (only Gradients 1 through 5)</a></li>
+  <li><a href="#binning-all-cruises" id="toc-binning-all-cruises" class="nav-link" data-scroll-target="#binning-all-cruises"><span class="header-section-number">2.2</span> Binning all cruises</a></li>
+  <li><a href="#data-cleaning-notes" id="toc-data-cleaning-notes" class="nav-link" data-scroll-target="#data-cleaning-notes"><span class="header-section-number">2.3</span> Data cleaning notes</a>
   <ul class="collapse">
-  <li><a href="#cleaning-gradients-3" id="toc-cleaning-gradients-3" class="nav-link" data-scroll-target="#cleaning-gradients-3"><span class="header-section-number">3.3.1</span> Cleaning Gradients 3</a></li>
-  <li><a href="#cleaning-gradients2" id="toc-cleaning-gradients2" class="nav-link" data-scroll-target="#cleaning-gradients2"><span class="header-section-number">3.3.2</span> Cleaning Gradients2</a></li>
-  <li><a href="#cleaning-gradients-1" id="toc-cleaning-gradients-1" class="nav-link" data-scroll-target="#cleaning-gradients-1"><span class="header-section-number">3.3.3</span> Cleaning Gradients 1</a></li>
-  <li><a href="#cleaning-gradients-4" id="toc-cleaning-gradients-4" class="nav-link" data-scroll-target="#cleaning-gradients-4"><span class="header-section-number">3.3.4</span> Cleaning Gradients 4</a></li>
-  <li><a href="#cleaning-gradients-5" id="toc-cleaning-gradients-5" class="nav-link" data-scroll-target="#cleaning-gradients-5"><span class="header-section-number">3.3.5</span> Cleaning Gradients 5</a></li>
+  <li><a href="#cleaning-gradients-3" id="toc-cleaning-gradients-3" class="nav-link" data-scroll-target="#cleaning-gradients-3"><span class="header-section-number">2.3.1</span> Cleaning Gradients 3</a></li>
+  <li><a href="#cleaning-gradients2" id="toc-cleaning-gradients2" class="nav-link" data-scroll-target="#cleaning-gradients2"><span class="header-section-number">2.3.2</span> Cleaning Gradients2</a></li>
+  <li><a href="#cleaning-gradients-1" id="toc-cleaning-gradients-1" class="nav-link" data-scroll-target="#cleaning-gradients-1"><span class="header-section-number">2.3.3</span> Cleaning Gradients 1</a></li>
+  <li><a href="#cleaning-gradients-4" id="toc-cleaning-gradients-4" class="nav-link" data-scroll-target="#cleaning-gradients-4"><span class="header-section-number">2.3.4</span> Cleaning Gradients 4</a></li>
+  <li><a href="#cleaning-gradients-5" id="toc-cleaning-gradients-5" class="nav-link" data-scroll-target="#cleaning-gradients-5"><span class="header-section-number">2.3.5</span> Cleaning Gradients 5</a></li>
   </ul></li>
-  <li><a href="#binning-the-remaining-cruises" id="toc-binning-the-remaining-cruises" class="nav-link" data-scroll-target="#binning-the-remaining-cruises"><span class="header-section-number">3.4</span> Binning the remaining cruises</a></li>
-  <li><a href="#processing-the-remaining-cruises" id="toc-processing-the-remaining-cruises" class="nav-link" data-scroll-target="#processing-the-remaining-cruises"><span class="header-section-number">3.5</span> Processing the remaining cruises</a></li>
+  <li><a href="#binning-the-remaining-cruises" id="toc-binning-the-remaining-cruises" class="nav-link" data-scroll-target="#binning-the-remaining-cruises"><span class="header-section-number">2.4</span> Binning the remaining cruises</a></li>
+  <li><a href="#processing-the-remaining-cruises" id="toc-processing-the-remaining-cruises" class="nav-link" data-scroll-target="#processing-the-remaining-cruises"><span class="header-section-number">2.5</span> Processing the remaining cruises</a></li>
   </ul>
 </nav>
     </div>
@@ -210,7 +204,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processing Seaflow data</span></h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Processing Seaflow data</span></h1>
 </div>
 
 
@@ -239,8 +233,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="processing-seaflow-data-only-gradients-1-through-5" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="processing-seaflow-data-only-gradients-1-through-5"><span class="header-section-number">3.1</span> Processing Seaflow data (only Gradients 1 through 5)</h2>
+<section id="processing-seaflow-data-only-gradients-1-through-5" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="processing-seaflow-data-only-gradients-1-through-5"><span class="header-section-number">2.1</span> Processing Seaflow data (only Gradients 1 through 5)</h2>
 <p>In this document, we will clean and bin the particle-level seaflow datasets (only Gradients 1 through 5).</p>
 <p>This is the overall setup for binning/gridding.</p>
 <p>Here are some helper functions.</p>
@@ -586,8 +580,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 </section>
-<section id="binning-all-cruises" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="binning-all-cruises"><span class="header-section-number">3.2</span> Binning all cruises</h2>
+<section id="binning-all-cruises" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="binning-all-cruises"><span class="header-section-number">2.2</span> Binning all cruises</h2>
 <p>First, we will carry out the actual binning.</p>
 <div class="cell">
 <details class="code-fold">
@@ -998,8 +992,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="data-cleaning-notes" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="data-cleaning-notes"><span class="header-section-number">3.3</span> Data cleaning notes</h2>
+<section id="data-cleaning-notes" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="data-cleaning-notes"><span class="header-section-number">2.3</span> Data cleaning notes</h2>
 <p>Next, we will clean/process the binned data.</p>
 <p>Here are some points that came up while cleaning data.</p>
 <ol type="1">
@@ -1008,8 +1002,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>G5 (<code>TN412_130</code>) PE values all fall in the bottom bin. Although at first glance these may look like censored points, they aren’t! We don’t and shouldn’t remove these! (They are more like <em>truncated</em> points.)</li>
 <li>G1 <em>might</em> a level jump in Prochlorococcus levels in the middle of the cruise. This is apparent from 1d plots and the series of 3d bin plots.</li>
 </ol>
-<section id="cleaning-gradients-3" class="level3" data-number="3.3.1">
-<h3 data-number="3.3.1" class="anchored" data-anchor-id="cleaning-gradients-3"><span class="header-section-number">3.3.1</span> Cleaning Gradients 3</h3>
+<section id="cleaning-gradients-3" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="cleaning-gradients-3"><span class="header-section-number">2.3.1</span> Cleaning Gradients 3</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1124,8 +1118,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 </section>
-<section id="cleaning-gradients2" class="level3" data-number="3.3.2">
-<h3 data-number="3.3.2" class="anchored" data-anchor-id="cleaning-gradients2"><span class="header-section-number">3.3.2</span> Cleaning Gradients2</h3>
+<section id="cleaning-gradients2" class="level3" data-number="2.3.2">
+<h3 data-number="2.3.2" class="anchored" data-anchor-id="cleaning-gradients2"><span class="header-section-number">2.3.2</span> Cleaning Gradients2</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1203,8 +1197,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 </section>
-<section id="cleaning-gradients-1" class="level3" data-number="3.3.3">
-<h3 data-number="3.3.3" class="anchored" data-anchor-id="cleaning-gradients-1"><span class="header-section-number">3.3.3</span> Cleaning Gradients 1</h3>
+<section id="cleaning-gradients-1" class="level3" data-number="2.3.3">
+<h3 data-number="2.3.3" class="anchored" data-anchor-id="cleaning-gradients-1"><span class="header-section-number">2.3.3</span> Cleaning Gradients 1</h3>
 <p>For G1, remove chl, then pe in order.</p>
 <div class="cell">
 <details class="code-fold">
@@ -1276,8 +1270,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 </section>
-<section id="cleaning-gradients-4" class="level3" data-number="3.3.4">
-<h3 data-number="3.3.4" class="anchored" data-anchor-id="cleaning-gradients-4"><span class="header-section-number">3.3.4</span> Cleaning Gradients 4</h3>
+<section id="cleaning-gradients-4" class="level3" data-number="2.3.4">
+<h3 data-number="2.3.4" class="anchored" data-anchor-id="cleaning-gradients-4"><span class="header-section-number">2.3.4</span> Cleaning Gradients 4</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1348,8 +1342,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 </section>
-<section id="cleaning-gradients-5" class="level3" data-number="3.3.5">
-<h3 data-number="3.3.5" class="anchored" data-anchor-id="cleaning-gradients-5"><span class="header-section-number">3.3.5</span> Cleaning Gradients 5</h3>
+<section id="cleaning-gradients-5" class="level3" data-number="2.3.5">
+<h3 data-number="2.3.5" class="anchored" data-anchor-id="cleaning-gradients-5"><span class="header-section-number">2.3.5</span> Cleaning Gradients 5</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1441,8 +1435,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="binning-the-remaining-cruises" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="binning-the-remaining-cruises"><span class="header-section-number">3.4</span> Binning the remaining cruises</h2>
+<section id="binning-the-remaining-cruises" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="binning-the-remaining-cruises"><span class="header-section-number">2.4</span> Binning the remaining cruises</h2>
 <p>Here are the remaining cruises.</p>
 <div class="cell">
 <details class="code-fold">
@@ -1527,8 +1521,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 </section>
-<section id="processing-the-remaining-cruises" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="processing-the-remaining-cruises"><span class="header-section-number">3.5</span> Processing the remaining cruises</h2>
+<section id="processing-the-remaining-cruises" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="processing-the-remaining-cruises"><span class="header-section-number">2.5</span> Processing the remaining cruises</h2>
 <p>The remaining cruises will be processed more automatically, and with simpler rules.</p>
 <ol type="1">
 <li><p>This is the main cleaning we’ll do authomatically – every top and bottom bin in every dimension will be set aside and called censored data (biomass).</p></li>
@@ -2774,13 +2768,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./00-setup.html" class="pagination-link" aria-label="Setup for this book">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Setup for this book</span></span>
+      <a href="./index.html" class="pagination-link" aria-label="Processing data">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Processing data</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="./02-process-seaflow-covariates.html" class="pagination-link" aria-label="Data imputation and visualization for Environmental Factors">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data imputation and visualization for Environmental Factors</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Data imputation and visualization for Environmental Factors</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

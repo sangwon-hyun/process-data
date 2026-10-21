@@ -7,7 +7,6 @@ book:
   author: "Sangwon Hyun"
   chapters:
     - index.qmd
-    - 00-setup.qmd
     - 01-process-seaflow.qmd
     - 02-process-seaflow-covariates.qmd
     - 03-add-onboard-covariates.qmd
