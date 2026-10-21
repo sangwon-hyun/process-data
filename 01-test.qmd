@@ -1,0 +1,31 @@
+
+::: {.panel-tabset}
+
+```{r display-1d-plots}
+#| results: 'asis'
+
+library(knitr)
+outputdir <- "/home/ethan/Dropbox/data/ocean/seaflow-40-bins"
+cruisenames <- c("SCOPE_16", "MGL1704")
+for (cruise in cruisenames) {
+  cat("### ", cruise, "\n\n", sep = "")
+
+  img <- file.path(
+    outputdir, cruise,
+    paste0(cruise, "-gridded-before-cleaning.png")
+  )
+
+  img_path <- knitr::include_graphics(img)
+
+  cat(
+    sprintf(
+      '<img src="%s" style="width:100%%;">',
+      img_path
+    )
+  )
+
+  cat("\n\n")
+}
+```
+
+:::

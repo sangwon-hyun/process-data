@@ -85,7 +85,7 @@ plot_1d_temp <- function (ylist, countslist, times, x = NULL, alpha = 0.1,
 }
 
 
-plot_3d_temp <- function(tt, ylist, biomass_list, dates){
+plot_3d_temp <- function(tt, ylist, biomass_list, dates, lims = NULL, by = NULL){
 
   ## TODO: Set plot limits to the result of plot_2d() so that the plots all
   ## occupy the same frame.
@@ -97,12 +97,26 @@ plot_3d_temp <- function(tt, ylist, biomass_list, dates){
     capture.output({
       tempdat = flowmix::collapse_3d_to_2d(ylist[[tt]], biomass_list[[tt]], dims = dimslist[[ll]])
     })
-      gg1 = flowtrend::plot_2d(ylist      = list(tempdat[,c(1,2)]),
+      gg1 = flowtrend::plot_2d(ylist      = list(tempdat[,c(1,2),drop=FALSE]),
                                countslist = list(tempdat[,3, drop=TRUE]), tt = 1,
                                raster_colours = c("white", "black", "yellow", "red"))
         ## if(ll==1){ gg1 = gg1 + ggtitle(paste0("tt=",tt)) }
         ## if(ll>1){ gg1 = gg1 + ggtitle("") }
         gg1 = gg1 + ggtitle("")
+
+        if(!is.null(lims)) {
+          cur_lims <- lims[dimslist[[ll]]]
+          x_lims <- cur_lims[[1]]
+          y_lims <- cur_lims[[2]]
+
+          cur_by <- by[dimslist[[ll]]]
+          x_by <- cur_by[1]
+          y_by <- cur_by[2]
+
+          gg1 <- gg1 + 
+            scale_x_continuous(limits = x_lims, breaks = seq(x_lims[1], x_lims[2], by = x_by)) + 
+            scale_y_continuous(limits = y_lims, breaks = seq(y_lims[1], y_lims[2], by = y_by))
+        }
       return(gg1)
     })
     cowplot::plot_grid(plotlist = plotlist, ncol = 3, labels = NULL) %>%
