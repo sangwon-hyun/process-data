@@ -21,3 +21,5 @@ cytogram-particle-download/.DS_Store
 mtg_notes
 
 /figures/
+
+covariate_scraping/covariate-transfer.sh
