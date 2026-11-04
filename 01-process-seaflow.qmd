@@ -1129,7 +1129,9 @@ for(cruisename in cruisenames_other){
 }
 ```
 
-Noting "weird" cytogram indices:
+## Possible Errors in Data Collection
+
+### Candidates
 
 ```{r weird-cytograms}
 
@@ -1141,19 +1143,13 @@ weird_cytograms <- list(
   "HOT319" = c(6), 
   "TN396_740" = c(1, 80),
   "Thompson_0" = c(2), 
-  "HOT308" = c(), # Looks fine
   "DeepDOM" = c(1, 169, 171, 173, 264, 399, 401, 404, 456, 463, 470, 477, 484, 489),
   "TN267" = c(1:23, 98, 113), 
   "HOT331" = c(1), 
   "GP15_1" = c(22, 76),
   "Tokyo_1" = c(4, 47, 136, 150, 183, 184),
-  "SCOPE_9" = c(), # Looks fine
-  "HOT304" = c(), # Looks fine
-  "HOT329" = c(), # Looks fine
-  "Thompson_9" = c(), 
   "SCOPE_17" = c(6, 18, 24, 27, 29), 
   "HOT317" = c(2, 4, 8), 
-  "KM2206_740" = c(), # Looks fine
   "SCOPE_6" = c(113, 134, 180, 181, 229), 
   "TN414" = c(1, 72),
   "HOT309" = c(16, 22, 37),
@@ -1184,20 +1180,18 @@ weird_cytograms <- list(
   "HOT325" = c(1:4), 
   "TN413" = c(25, 220, 221, 268, 271), 
   "KM1713" = c(378), # Really strong signal
-  "TN398" = c(),  # Really strong signal, and not the typical "hawaii - alaska" trajectory. Hawaii to Baja. 
+  # "TN398" = c(),  # Really strong signal, and not the typical "hawaii - alaska" trajectory. Hawaii to Baja. 
   "Thompson_3" = c(7), 
   "SCOPE_19" = c(10),   
-  "SCOPE_1" = c(),   
   "HOT337" = c(57),   
   "SCOPE_2" = c(51, 88),    # Strong signal
   "KM1712" = c(106, 126, 196, 197, 251, 485),   
   "HOT301" = c(2, 49),    
   "HOT318" = c(2:5, 8:11, 18, 20, 24),   
-  "HOT303" = c(),   # TODO: ask Francois what's up with the dots along high fsc, low chl
+  # "HOT303" = c(),   # TODO: ask Francois what's up with the dots along high fsc, low chl
   "CMOP_3" = c(3, 8, 13, 19, 42, 60),   
   "HOT315" = c(4),   
   "HOT323" = c(4:6, 29, 34, 35),   
-  "HOT338" = c(), 
   "Thompson_11" = c(1, 24, 42, 76, 78, 79, 113, 119:124),
   "HOT313" = c(17, 22), 
   "SR1917" = c(5, 8, 11, 53, 56, 69, 72, 80, 83:86, 95, 99, 102:111, 124:132, 148:149, 170:171, 176, 465, 472), 
@@ -1219,10 +1213,8 @@ weird_cytograms <- list(
   "HOT328" = c(1, 2, 8, 66, 67, 91), 
   "HOT310" = c(1, 65), 
   "HOT322" = c(1), 
-  "HOT307" = c(), 
   "MESO_SCOPE" = c(124, 199, 264), 
   "GP15_2" = c(68, 201, 206, 348), 
-  "SCOPE_13" = c(), 
   "Thompson_10" = c(53), # Really interesting
   "SCOPE_12" = c(1, 27, 28, 38), 
   "SCOPE_14" = c(7), 
@@ -1247,6 +1239,8 @@ for(cruisename in names(weird_cytograms)) {
   
   TT <- cruise_TT[cruisename]
 
+  candidates <- weird_cytograms[[cruisename]]
+
   times_to_plot <- lapply(weird_cytograms[[cruisename]], function(cur_tt) {
     if(cur_tt == 1) {
       res <- c(cur_tt, cur_tt + 1)  
@@ -1268,6 +1262,11 @@ for(cruisename in names(weird_cytograms)) {
     # Convert to a format knitr can use
     img_path <- include_graphics(img)
 
+    # Explicitly label which cytograms are to be removed (to not confuse with the before/after cytograms)
+    if(tt %in% candidates) {
+      cat("Possible error:", "\n")
+    }
+
     # Insert HTML to print the figure (because 
     # the output of include_graphics cannot be printed directly 
     # within a for loop)
@@ -1286,117 +1285,193 @@ for(cruisename in names(weird_cytograms)) {
 
 :::
 
-<!-- 
-Weird cytograms consensus
+### Likely errors
 
-HOT302:          all originally agreed on 12 & 39 but now I'm questioning 12
-HOT330:          all agree on 42, but now I'm questioning (self-similar)
-Thompson_12:     - 
-KM1906_towfish:  -
-HOT319:          6, but questioning
-TN396_740:       1, 80 but questioning 80
-Thompson_0:      2, but questioning
-DeepDOM:         399, 401, 456, 484, 489 (questioning all of these; I think the cruise is overall noisy)
-TN267:           1, 2, 3, 5, 10, 12, 19, 22 (questioning all but 12 and 22)
-HOT301:          1 (questioning)
-GP15_1:          22 (questioning)
-Tokyo_1:         47, 183, 184 (questioning all)
-SCOPE_9:         - 
-HOT304:          - 
-HOT329:          -
-Thompson_9:      -
-SCOPE_17:        6 (questioning), 18, 24, 27 (questioning), 29
-HOT317:          -
-KM2206_740:      -
-SCOPE_6:         -
-TN414:           1, 72 (questioning all)
-HOT309:          22, 37 (questioning all)
-KOK1805:         - 
-HOT312:          -
-Thompson_4:      8, 10, 60 (questioning all)
-KM1923_751:      186
-HOT335:          68 (questioning)
-SCOPE_3:         1 (questioning)
-HOT299:          -
-HOT332:          37, 41 (questioning)
-SCOPE_11:        52 (questioning)
-HOT324:          1 (questioning)
-MBARI_3:         106 (questioning), 109
-SCOPE_10:        24, 30 (questioning)
-HOT336:          -
-TN265:           5, 14, 72 (questioning), 92 (questioning), 96, 131 (questioning), 136 (questioning), 164 (questioning)
-SCOPE_5:         -
-HOT300:          -
-Tokyo_2:         20 (questioning)
-SCOPE_18:        45 (questioning)
-KOK1806:         16 (questioning)
-MBARI_1:         93 (questioning)
-Thompson_6:      -
-MBARI_2:         -
-HOT326:          -
-HOT-294:         -
-HOT325:          -
-TN413:           221 (questioning), 268 (questioning)
-KM1713:          -
-TN398:           -
-Thompson_3:      7 (questioning)
-SCOPE_19:        10 (questioning)
-SCOPE_1:         -
-HOT337:          -
-SCOPE_2:         -
-KM1712:          196, 197, 251 (questioning all)
-HOT301:          49 (questioning)
-HOT318:          3 (questioning)
-HOT303:          - 
-CMOP_3:          3 (questioning)
-HOT315:          -
-HOT323:          34, 35 (questioning all)
-HOT338:          - 
-Thompson_11:     78 (questioning)
-HOT313:          -
-SR1917:          472 (questioning)
-SCOPE-PARAGONII: 97 (questioning)
-SCOPE_Falkor2:   -
-TN266:           25, 48, 49, 51, 74, 75, 217 (questioning all but 74, 75)
-KiloMoana_1:     2, 6, 323 (questioning all)
-SCOPE-PARAGON:   -
-Thompson_5:      -
-Thompson_1:      43, 71 (questioning all)
-SCOPE_Falkor1:   -
-SCOPE_4:         -
-KM1920:          89 (questioning)
-KM1919:          -
-KM1923_740:      -
-HOT321:          40, 55 (questioning all)
-HOT314:          7 (questioning)
-HOT297:          11 (questioning)
-HOT328:          91 (questioning)
-HOT310:          1 (questioning)
-HOT322:          -
-HOT307:          -
-MESO_SCOPE:      -
-GP15_2:          -
-SCOPE_13:        -
-Thompson_10:     -
-SCOPE_12:        1 (questioning)
-SCOPE_14:        -
-SCOPE_15:        -
--->
+```{r weird-cytograms-confident}
+weird_cytograms_confident <- list(
+  "HOT302" = c(39),
+  "TN396_740" = c(1),
+  "TN267" = c(12, 22),
+  "SCOPE_17" = c(18, 24, 29),
+  "KM1923_751" = c(186),
+  "HOT332" = c(37),
+  "MBARI_3" = c(109),
+  "SCOPE_10" = c(24),
+  "TN265" = c(5, 14, 96),
+  "TN266" = c(74, 75)
+)
+```
 
-<!-- 
-Only the ones I'm not questioning
+::: {.panel-tabset}
 
-HOT302:          39
-TN396_740:       1
-TN267:           12, 22
-SCOPE_17:        18, 24, 29
-KM1923_751:      186
-HOT332:          37
-MBARI_3:         109
-SCOPE_10:        24
-TN265:           5, 14, 96
-TN266:           74, 75
--->
+```{r weird-cytograms-confident-plot}
+#| results: asis
+#| fig-width: 12
+#| fig-height: 36 
+for(cruisename in names(weird_cytograms_confident)) {
 
-<!-- TODO: put these in three tabsets, and only have tabs for cruises which 
-actually have stuff we're considering removing (no empty tabs) -->
+  # Open a new tab
+  cat("### ", cruisename, "\n\n", sep = "")
+  three_d_plots_dir <- file.path("figures", cruisename, "3d-plots")
+
+  TT <- cruise_TT[cruisename]
+
+  candidates <- weird_cytograms_confident[[cruisename]]
+
+  times_to_plot <- lapply(weird_cytograms_confident[[cruisename]], function(cur_tt) {
+    if(cur_tt == 1) {
+      res <- c(cur_tt, cur_tt + 1)  
+    } else if(cur_tt == TT) {
+      res <- c(cur_tt - 1, cur_tt)
+    } else {
+      res <- c(cur_tt - 1, cur_tt, cur_tt + 1)
+    }
+
+    return(res)
+  })
+
+  times_to_plot <- sort(unique(unlist(times_to_plot)))
+
+  for(tt in times_to_plot) {
+    # Get path to image
+    img <- file.path(three_d_plots_dir, paste0(cruisename, "-", tt, ".png"))
+
+    # Convert to a format knitr can use
+    img_path <- include_graphics(img)
+
+    # Explicitly label which cytograms are to be removed (to not confuse with the before/after cytograms)
+    if(tt %in% candidates) {
+      cat("Possible error:", "\n")
+    }
+
+    # Insert HTML to print the figure (because 
+    # the output of include_graphics cannot be printed directly 
+    # within a for loop)
+    cat(
+      sprintf(
+        '<img src="%s" style="width:100%%;">',
+        img_path
+      )
+    )
+  }
+
+  # Close the tab
+  cat("\n\n")
+}
+```
+
+:::
+
+### Uncertain
+
+```{r weird-cytograms-uncertain}
+weird_cytograms_uncertain <- list(
+  "HOT302" = c(12),
+  "HOT330" = c(42),
+  "HOT319" = c(6),
+  "TN396_740" = c(80),
+  "Thompson_0" = c(2),
+  "DeepDOM" = c(399, 401, 456, 484, 489),
+  "TN267" = c(1, 2, 3, 5, 10, 19),
+  "HOT301" = c(1),
+  "GP15_1" = c(22),
+  "Tokyo_1" = c(47, 183, 184),
+  "SCOPE_17" = c(6, 27),
+  "TN414" = c(1, 72),
+  "HOT309" = c(22, 37),
+  "Thompson_4" = c(8, 10, 60),
+  "HOT335" = c(68),
+  "SCOPE_3" = c(1),
+  "HOT332" = c(37, 41),
+  "SCOPE_11" = c(52),
+  "HOT324" = c(1),
+  "MBARI_3" = c(106),
+  "SCOPE_10" = c(30),
+  "TN265" = c(72, 92, 131, 136, 164),
+  "Tokyo_2" = c(20),
+  "SCOPE_18" = c(45),
+  "KOK1806" = c(16),
+  "MBARI_1" = c(93),
+  "TN413" = c(221 , 268),
+  "Thompson_3" = c(7),
+  "SCOPE_19" = c(10),
+  "KM1712" = c(196, 197, 251),
+  "HOT301" = c(49),
+  "HOT318" = c(3),
+  "CMOP_3" = c(3),
+  "HOT323" = c(34, 35),
+  "Thompson_11" = c(78),
+  "SR1917" = c(472),
+  "SCOPE-PARAGONII" = c(97),
+  "TN266" = c(25, 48, 49, 51, 217),
+  "KiloMoana_1" = c(2, 6, 323),
+  "Thompson_1" = c(43, 71),
+  "KM1920" = c(89),
+  "HOT321" = c(40, 55),
+  "HOT314" = c(7),
+  "HOT297" = c(11),
+  "HOT328" = c(91),
+  "HOT310" = c(1),
+  "SCOPE_12" = c(1)
+)
+```
+
+::: {.panel-tabset}
+
+```{r weird-cytograms-uncertain-plot}
+#| results: asis
+#| fig-width: 12
+#| fig-height: 36 
+for(cruisename in names(weird_cytograms_uncertain)) {
+
+  # Open a new tab
+  cat("### ", cruisename, "\n\n", sep = "")
+  three_d_plots_dir <- file.path("figures", cruisename, "3d-plots")
+  
+  TT <- cruise_TT[cruisename]
+
+  candidates <- weird_cytograms_uncertain[[cruisename]]
+
+  times_to_plot <- lapply(weird_cytograms_uncertain[[cruisename]], function(cur_tt) {
+    if(cur_tt == 1) {
+      res <- c(cur_tt, cur_tt + 1)  
+    } else if(cur_tt == TT) {
+      res <- c(cur_tt - 1, cur_tt)
+    } else {
+      res <- c(cur_tt - 1, cur_tt, cur_tt + 1)
+    }
+
+    return(res)
+  })
+
+  times_to_plot <- sort(unique(unlist(times_to_plot)))
+
+  for(tt in times_to_plot) {
+    # Get path to image
+    img <- file.path(three_d_plots_dir, paste0(cruisename, "-", tt, ".png"))
+
+    # Convert to a format knitr can use
+    img_path <- include_graphics(img)
+
+    # Explicitly label which cytograms are to be removed (to not confuse with the before/after cytograms)
+    if(tt %in% candidates) {
+      cat("Possible error:", "\n")
+    }
+
+    # Insert HTML to print the figure (because 
+    # the output of include_graphics cannot be printed directly 
+    # within a for loop)
+    cat(
+      sprintf(
+        '<img src="%s" style="width:100%%;">',
+        img_path
+      )
+    )
+  }
+
+  # Close the tab
+  cat("\n\n")
+}
+```
+
+:::
