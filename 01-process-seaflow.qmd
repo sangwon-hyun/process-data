@@ -283,14 +283,23 @@ cleaning.
 ```{r create-1d-plots}
 #| eval: FALSE
 
-for(cruisename in cruises){
+cruise_TT <- integer(length(cruises))
+names(cruise_TT) <- cruises
+
+for(cruisename in cruises) {
   ## Load data
+  cat(cruisename, " ")
+
   csv_filename <- paste0(cruisename, "-gridded-before-cleaning.csv")
   datlist <- csv_to_datlist(outputdir = file.path(outputdir, cruisename),
                             csv_filename = csv_filename)
   ylist <- datlist$ylist
   biomass_list <- datlist$biomass_list
   dates <- datlist$datetimes
+
+  cruise_TT[cruisename] <- length(dates)
+  cat(length(dates), "\n")
+
   rm(datlist)
   gc()
 
@@ -328,6 +337,8 @@ for(cruisename in cruises){
     create.dir = TRUE
   ) %>% suppressMessages()
 }
+
+saveRDS(cruise_TT, file.path(outputdir, "TT_by_cruise_before_removal.RDS"))
 ```
 
 ::: {.panel-tabset}
@@ -986,7 +997,7 @@ for(cruisename in cruisenames_other){
     suppressMessages()
   
   ggsave(
-    ile.path("figures", cruisename, paste0(cruisename, "-censor-removal.png")), 
+    file.path("figures", cruisename, paste0(cruisename, "-censor-removal.png")), 
     combined_plot, 
     width = 10, 
     height = 70, 
@@ -1215,7 +1226,7 @@ weird_cytograms <- list(
   "Thompson_10" = c(53), # Really interesting
   "SCOPE_12" = c(1, 27, 28, 38), 
   "SCOPE_14" = c(7), 
-  "SCOPE_15" = c(9, 72, 76:77) 
+  "SCOPE_15" = c(9, 72, 76:77)
 )
 ```
 
@@ -1226,14 +1237,15 @@ weird_cytograms <- list(
 #| fig-width: 12
 #| fig-height: 36 
 
+cruise_TT <- readRDS(file.path(outputdir, "TT_by_cruise_before_removal.RDS"))
+
 for(cruisename in names(weird_cytograms)) {
 
   # Open a new tab
   cat("### ", cruisename, "\n\n", sep = "")
-
   three_d_plots_dir <- file.path("figures", cruisename, "3d-plots")
   
-  TT = length(list.files(three_d_plots_dir))
+  TT <- cruise_TT[cruisename]
 
   times_to_plot <- lapply(weird_cytograms[[cruisename]], function(cur_tt) {
     if(cur_tt == 1) {
@@ -1273,3 +1285,118 @@ for(cruisename in names(weird_cytograms)) {
 ```
 
 :::
+
+<!-- 
+Weird cytograms consensus
+
+HOT302:          all originally agreed on 12 & 39 but now I'm questioning 12
+HOT330:          all agree on 42, but now I'm questioning (self-similar)
+Thompson_12:     - 
+KM1906_towfish:  -
+HOT319:          6, but questioning
+TN396_740:       1, 80 but questioning 80
+Thompson_0:      2, but questioning
+DeepDOM:         399, 401, 456, 484, 489 (questioning all of these; I think the cruise is overall noisy)
+TN267:           1, 2, 3, 5, 10, 12, 19, 22 (questioning all but 12 and 22)
+HOT301:          1 (questioning)
+GP15_1:          22 (questioning)
+Tokyo_1:         47, 183, 184 (questioning all)
+SCOPE_9:         - 
+HOT304:          - 
+HOT329:          -
+Thompson_9:      -
+SCOPE_17:        6 (questioning), 18, 24, 27 (questioning), 29
+HOT317:          -
+KM2206_740:      -
+SCOPE_6:         -
+TN414:           1, 72 (questioning all)
+HOT309:          22, 37 (questioning all)
+KOK1805:         - 
+HOT312:          -
+Thompson_4:      8, 10, 60 (questioning all)
+KM1923_751:      186
+HOT335:          68 (questioning)
+SCOPE_3:         1 (questioning)
+HOT299:          -
+HOT332:          37, 41 (questioning)
+SCOPE_11:        52 (questioning)
+HOT324:          1 (questioning)
+MBARI_3:         106 (questioning), 109
+SCOPE_10:        24, 30 (questioning)
+HOT336:          -
+TN265:           5, 14, 72 (questioning), 92 (questioning), 96, 131 (questioning), 136 (questioning), 164 (questioning)
+SCOPE_5:         -
+HOT300:          -
+Tokyo_2:         20 (questioning)
+SCOPE_18:        45 (questioning)
+KOK1806:         16 (questioning)
+MBARI_1:         93 (questioning)
+Thompson_6:      -
+MBARI_2:         -
+HOT326:          -
+HOT-294:         -
+HOT325:          -
+TN413:           221 (questioning), 268 (questioning)
+KM1713:          -
+TN398:           -
+Thompson_3:      7 (questioning)
+SCOPE_19:        10 (questioning)
+SCOPE_1:         -
+HOT337:          -
+SCOPE_2:         -
+KM1712:          196, 197, 251 (questioning all)
+HOT301:          49 (questioning)
+HOT318:          3 (questioning)
+HOT303:          - 
+CMOP_3:          3 (questioning)
+HOT315:          -
+HOT323:          34, 35 (questioning all)
+HOT338:          - 
+Thompson_11:     78 (questioning)
+HOT313:          -
+SR1917:          472 (questioning)
+SCOPE-PARAGONII: 97 (questioning)
+SCOPE_Falkor2:   -
+TN266:           25, 48, 49, 51, 74, 75, 217 (questioning all but 74, 75)
+KiloMoana_1:     2, 6, 323 (questioning all)
+SCOPE-PARAGON:   -
+Thompson_5:      -
+Thompson_1:      43, 71 (questioning all)
+SCOPE_Falkor1:   -
+SCOPE_4:         -
+KM1920:          89 (questioning)
+KM1919:          -
+KM1923_740:      -
+HOT321:          40, 55 (questioning all)
+HOT314:          7 (questioning)
+HOT297:          11 (questioning)
+HOT328:          91 (questioning)
+HOT310:          1 (questioning)
+HOT322:          -
+HOT307:          -
+MESO_SCOPE:      -
+GP15_2:          -
+SCOPE_13:        -
+Thompson_10:     -
+SCOPE_12:        1 (questioning)
+SCOPE_14:        -
+SCOPE_15:        -
+-->
+
+<!-- 
+Only the ones I'm not questioning
+
+HOT302:          39
+TN396_740:       1
+TN267:           12, 22
+SCOPE_17:        18, 24, 29
+KM1923_751:      186
+HOT332:          37
+MBARI_3:         109
+SCOPE_10:        24
+TN265:           5, 14, 96
+TN266:           74, 75
+-->
+
+<!-- TODO: put these in three tabsets, and only have tabs for cruises which 
+actually have stuff we're considering removing (no empty tabs) -->
