@@ -114,6 +114,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -202,6 +231,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#candidates" id="toc-candidates" class="nav-link" data-scroll-target="#candidates"><span class="header-section-number">2.6.1</span> Candidates</a></li>
   <li><a href="#likely-errors" id="toc-likely-errors" class="nav-link" data-scroll-target="#likely-errors"><span class="header-section-number">2.6.2</span> Likely errors</a></li>
   <li><a href="#uncertain" id="toc-uncertain" class="nav-link" data-scroll-target="#uncertain"><span class="header-section-number">2.6.3</span> Uncertain</a></li>
+  <li><a href="#final-list-of-cytograms-to-remove" id="toc-final-list-of-cytograms-to-remove" class="nav-link" data-scroll-target="#final-list-of-cytograms-to-remove"><span class="header-section-number">2.6.4</span> Final List of Cytograms to Remove</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -2392,6 +2422,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>After reviewing these, we decided to keep HOT332 <span class="math inline">\(t = 37\)</span>, MBARI_3 <span class="math inline">\(t=109\)</span>, SCOPE_10 <span class="math inline">\(t = 24\)</span>, and TN266 <span class="math inline">\(t = 74, 75\)</span>, and remove the rest.</p>
 </section>
 <section id="uncertain" class="level3" data-number="2.6.3">
 <h3 data-number="2.6.3" class="anchored" data-anchor-id="uncertain"><span class="header-section-number">2.6.3</span> Uncertain</h3>
@@ -2592,6 +2623,74 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="tabset-6-47" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-47-tab">
 <p>Possible error: <img src="figures/SCOPE_12/3d-plots/SCOPE_12-1.png" style="width:100%;"><img src="figures/SCOPE_12/3d-plots/SCOPE_12-2.png" style="width:100%;"></p>
+</div>
+</div>
+</div>
+<p>After reviewing these, we decided to remove HOT319 <span class="math inline">\(t = 6\)</span>, TN267 <span class="math inline">\(t = 1, 3\)</span>, TN413 <span class="math inline">\(t = 221\)</span>, KM1712 <span class="math inline">\(t = 196, 197\)</span>, TN266 <span class="math inline">\(t = 217\)</span>, KiloMoana_1 <span class="math inline">\(t = 6\)</span>, and SCOPE_12 <span class="math inline">\(t = 1\)</span>, and keep the rest.</p>
+</section>
+<section id="final-list-of-cytograms-to-remove" class="level3" data-number="2.6.4">
+<h3 data-number="2.6.4" class="anchored" data-anchor-id="final-list-of-cytograms-to-remove"><span class="header-section-number">2.6.4</span> Final List of Cytograms to Remove</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>cytograms_to_remove <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"HOT302"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">39</span>),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"HOT319"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">6</span>),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN396_740"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN267"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">12</span>, <span class="dv">22</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SCOPE_17"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">24</span>, <span class="dv">29</span>),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1923_751"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">186</span>),</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN265"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">14</span>, <span class="dv">96</span>),</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN413"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">221</span>),</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Thompson_3"</span> <span class="ot">=</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1712"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">196</span>, <span class="dv">197</span>),</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN266"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">217</span>),</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KiloMoana_1"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">6</span>),</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SCOPE_12"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-7-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-1" role="tab" aria-controls="tabset-7-1" aria-selected="true" href="">HOT302</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-2" role="tab" aria-controls="tabset-7-2" aria-selected="false" href="">HOT319</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-3" role="tab" aria-controls="tabset-7-3" aria-selected="false" href="">TN396_740</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-4" role="tab" aria-controls="tabset-7-4" aria-selected="false" href="">TN267</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-5" role="tab" aria-controls="tabset-7-5" aria-selected="false" href="">SCOPE_17</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-6" role="tab" aria-controls="tabset-7-6" aria-selected="false" href="">KM1923_751</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-7-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-7" role="tab" aria-controls="tabset-7-7" aria-selected="false" href="">TN265</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-8-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-8" role="tab" aria-controls="tabset-7-8" aria-selected="false" href="">TN413</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-9-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-9" role="tab" aria-controls="tabset-7-9" aria-selected="false" href="">Thompson_3</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-10-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-10" role="tab" aria-controls="tabset-7-10" aria-selected="false" href="">KM1712</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-11-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-11" role="tab" aria-controls="tabset-7-11" aria-selected="false" href="">TN266</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-12-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-12" role="tab" aria-controls="tabset-7-12" aria-selected="false" href="">KiloMoana_1</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-13-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-13" role="tab" aria-controls="tabset-7-13" aria-selected="false" href="">SCOPE_12</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-7-1-tab">
+<p><img src="figures/HOT302/3d-plots/HOT302-39.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-2-tab">
+<p><img src="figures/HOT319/3d-plots/HOT319-6.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-3-tab">
+<p><img src="figures/TN396_740/3d-plots/TN396_740-1.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-4-tab">
+<p><img src="figures/TN267/3d-plots/TN267-1.png" style="width:100%;"><img src="figures/TN267/3d-plots/TN267-3.png" style="width:100%;"><img src="figures/TN267/3d-plots/TN267-12.png" style="width:100%;"><img src="figures/TN267/3d-plots/TN267-22.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-5-tab">
+<p><img src="figures/SCOPE_17/3d-plots/SCOPE_17-18.png" style="width:100%;"><img src="figures/SCOPE_17/3d-plots/SCOPE_17-24.png" style="width:100%;"><img src="figures/SCOPE_17/3d-plots/SCOPE_17-29.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-6" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-6-tab">
+<p><img src="figures/KM1923_751/3d-plots/KM1923_751-186.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-7" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-7-tab">
+<p><img src="figures/TN265/3d-plots/TN265-5.png" style="width:100%;"><img src="figures/TN265/3d-plots/TN265-14.png" style="width:100%;"><img src="figures/TN265/3d-plots/TN265-96.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-8" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-8-tab">
+<p><img src="figures/TN413/3d-plots/TN413-221.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-9" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-9-tab">
+<p><img src="figures/Thompson_3/3d-plots/Thompson_3-7.png" style="width:100%;"><img src="figures/Thompson_3/3d-plots/Thompson_3-8.png" style="width:100%;"><img src="figures/Thompson_3/3d-plots/Thompson_3-9.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-10" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-10-tab">
+<p><img src="figures/KM1712/3d-plots/KM1712-196.png" style="width:100%;"><img src="figures/KM1712/3d-plots/KM1712-197.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-11" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-11-tab">
+<p><img src="figures/TN266/3d-plots/TN266-217.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-12" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-12-tab">
+<p><img src="figures/KiloMoana_1/3d-plots/KiloMoana_1-6.png" style="width:100%;"></p>
+</div>
+<div id="tabset-7-13" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-13-tab">
+<p><img src="figures/SCOPE_12/3d-plots/SCOPE_12-1.png" style="width:100%;"></p>
 </div>
 </div>
 </div>

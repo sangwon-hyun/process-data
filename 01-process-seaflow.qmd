@@ -1362,6 +1362,8 @@ for(cruisename in names(weird_cytograms_confident)) {
 
 :::
 
+After reviewing these, we decided to keep HOT332 $t = 37$, MBARI\_3 $t=109$, SCOPE\_10 $t = 24$, and TN266 $t = 74, 75$, and remove the rest.
+
 ### Uncertain
 
 ```{r weird-cytograms-uncertain}
@@ -1457,6 +1459,67 @@ for(cruisename in names(weird_cytograms_uncertain)) {
     if(tt %in% candidates) {
       cat("Possible error:", "\n")
     }
+
+    # Insert HTML to print the figure (because 
+    # the output of include_graphics cannot be printed directly 
+    # within a for loop)
+    cat(
+      sprintf(
+        '<img src="%s" style="width:100%%;">',
+        img_path
+      )
+    )
+  }
+
+  # Close the tab
+  cat("\n\n")
+}
+```
+
+:::
+
+After reviewing these, we decided to remove HOT319 $t = 6$, TN267 $t = 1, 3$, TN413 $t = 221$, KM1712 $t = 196, 197$, TN266 $t = 217$, KiloMoana\_1 $t = 6$, and SCOPE\_12 $t = 1$, and keep the rest.
+
+### Final List of Cytograms to Remove
+
+```{r cytograms-to-remove}
+cytograms_to_remove <- list(
+  "HOT302" = c(39),
+  "HOT319" = c(6),
+  "TN396_740" = c(1),
+  "TN267" = c(1, 3, 12, 22),
+  "SCOPE_17" = c(18, 24, 29),
+  "KM1923_751" = c(186),
+  "TN265" = c(5, 14, 96),
+  "TN413" = c(221),
+  "Thompson_3" = 7:9,
+  "KM1712" = c(196, 197),
+  "TN266" = c(217),
+  "KiloMoana_1" = c(6),
+  "SCOPE_12" = c(1)
+)
+```
+
+::: {.panel-tabset}
+
+```{r cytograms-to-remove-plot}
+#| results: asis
+#| fig-width: 12
+#| fig-height: 36 
+for(cruisename in names(cytograms_to_remove)) {
+
+  # Open a new tab
+  cat("### ", cruisename, "\n\n", sep = "")
+  three_d_plots_dir <- file.path("figures", cruisename, "3d-plots")
+  
+  times_to_plot <- cytograms_to_remove[[cruisename]]
+
+  for(tt in times_to_plot) {
+    # Get path to image
+    img <- file.path(three_d_plots_dir, paste0(cruisename, "-", tt, ".png"))
+
+    # Convert to a format knitr can use
+    img_path <- include_graphics(img)
 
     # Insert HTML to print the figure (because 
     # the output of include_graphics cannot be printed directly 
