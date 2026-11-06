@@ -1,0 +1,15 @@
+data/
+figures/
+
+# API key
+.Renviron
+
+# Remade by catalog-scrape.R on every launcher run
+catalog.csv
+
+# Slurm logs and task markers
+logs/*
+!logs/.gitkeep
+
+# macOS
+.DS_Store

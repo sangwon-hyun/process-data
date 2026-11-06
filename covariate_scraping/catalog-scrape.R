@@ -9,12 +9,6 @@ options(
 # Get working directory (should be where this script lives)
 script_dir <- getwd()
 
-# Make "data" folder for RDS/CSV files
-data_path <- file.path(script_dir, "data")
-if (!dir.exists(data_path)) {
-  dir.create(data_path)
-}
-
 # API key access
 set_authorization(
   cmap_key = Sys.getenv("CMAP_APIKEY")
@@ -26,4 +20,5 @@ catalog <- get_catalog()
 catalog <- catalog %>% 
   mutate(Variable_Table_Name = paste0(Variable, "_", Table_Name))
 
-write.csv(catalog, file.path(data_path, "catalog.csv"), row.names = FALSE)
+# Write next to this script, where covariate-scrape-process.R expects it
+write.csv(catalog, file.path(script_dir, "catalog.csv"), row.names = FALSE)
