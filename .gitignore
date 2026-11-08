@@ -1,2 +1,31 @@
+# API key
+covariate_scraping/.Renviron
+
+# Folders of plots
+covariate_scraping/Plots/
+covariate_scraping/plots
+
+covariate_scraping/.DS_Store
+
 /.quarto/
+**/*.quarto_ipynb
+
+.vscode
+
+notes.md
+
+_freeze
+cytogram-particle-download/.DS_Store
 .DS_Store
+
+mtg_notes
+
+/figures/
+
+covariate_scraping/covariate-transfer.sh
+
+Rplots.pdf
+
+logs
+02-process-seaflow-covariates.R
+02-process-seaflow-covariates.slurm
