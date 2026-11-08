@@ -25,3 +25,7 @@ mtg_notes
 covariate_scraping/covariate-transfer.sh
 
 Rplots.pdf
+
+logs
+02-process-seaflow-covariates.R
+02-process-seaflow-covariates.slurm

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Sangwon Hyun">
-<meta name="dcterms.date" content="2026-11-04">
+<meta name="dcterms.date" content="2026-11-07">
 
 <title>3&nbsp; Data imputation and visualization for Environmental Factors – Documenting Data Processing</title>
 <style>
@@ -212,7 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 4, 2026</p>
+      <p class="date">November 7, 2026</p>
     </div>
   </div>
   
@@ -267,36 +267,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="do">## Directories ##</span></span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="do">#################</span></span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="do">## contains files such as X-MGL1704.csv, from Dane's covariate_scraping scripts</span></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>datadir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"/home"</span>, <span class="st">"daapears"</span>, <span class="st">"Hyun_lab_NEW"</span>, <span class="st">"covariate_scraping"</span>, <span class="st">"data"</span>)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## Output directory for the imputed hourly covariates</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>outputdir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"~"</span>, <span class="st">"many-cruises-data"</span>, <span class="st">"seaflow-covariates"</span>)</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="do">## contains files such as X-MGL1704.csv, from Dane's covariate_scraping scripts</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>datadir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"/home"</span>, <span class="st">"daapears"</span>, <span class="st">"Hyun_lab_NEW"</span>, <span class="st">"covariate_scraping"</span>, <span class="st">"data"</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="do">## Output directory for the imputed hourly covariates</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>outputdir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"~"</span>, <span class="st">"many-cruises-data"</span>, <span class="st">"seaflow-covariates"</span>)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="do">#########################</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="do">## Helper functions ####</span></span>
 <span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="do">#########################</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="do">## Helper functions ####</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="do">#########################</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>cat_tab <span class="ot">&lt;-</span> <span class="cf">function</span>(title, <span class="at">level =</span> <span class="dv">3</span>) {</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># The leading "\n\n" forces a clean break from whatever printed previously</span></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>, <span class="fu">strrep</span>(<span class="st">"#"</span>, level), <span class="st">" "</span>, title, <span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>make_html_table <span class="ot">&lt;-</span> <span class="cf">function</span>(mytab, <span class="at">table_caption =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  mytab <span class="sc">|&gt;</span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable</span>(</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">format =</span> <span class="st">"html"</span>, </span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>      <span class="at">digits =</span> <span class="dv">2</span>, </span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">align =</span> <span class="st">"c"</span>,</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> table_caption</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_styling</span>(</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>),</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>      <span class="at">full_width =</span> <span class="cn">FALSE</span></span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>make_html_table <span class="ot">&lt;-</span> <span class="cf">function</span>(mytab, <span class="at">table_caption =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  mytab <span class="sc">|&gt;</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable</span>(</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">format =</span> <span class="st">"html"</span>, </span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>      <span class="at">digits =</span> <span class="dv">2</span>, </span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>      <span class="at">align =</span> <span class="st">"c"</span>,</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>      <span class="at">caption =</span> table_caption</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_styling</span>(</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>      <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>),</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">full_width =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <hr>
@@ -304,12 +297,338 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-loading-standardization" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="data-loading-standardization"><span class="header-section-number">3.2</span> 2. Data Loading &amp; Standardization</h2>
 <p>Load the cruise dataset and scale numeric features.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: convert to cruise names</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cruise_ids <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1606"</span>, <span class="do">## G1</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"MGL1704"</span>, <span class="do">## G2</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1906"</span>, <span class="do">## G3</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN397"</span>, <span class="do">## G4</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN412"</span>,  <span class="do">## G5</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CN11ID"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CN12ID"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CN13ID"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"FK180310-1"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"FK180310-2"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1314"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1427"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1502"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1508"</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1510"</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1512"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1513"</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1518"</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1601"</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1602"</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1603"</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1708"</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1709"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1712"</span>,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1713"</span>,</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1717"</span>,</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1802"</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1805"</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1821"</span>,</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1823"</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1901"</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1903"</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1909"</span>,</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1912"</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1915"</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1917"</span>,</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1919"</span>,</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1920"</span>,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1923"</span>,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM1924"</span>,</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2001"</span>,</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2002"</span>,</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2009"</span>,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2010"</span>,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2011"</span>,</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2013"</span>,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2014"</span>,</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2101"</span>,</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2103"</span>,</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2104"</span>,</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2105"</span>,</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2109"</span>,</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2111"</span>,</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2112"</span>,</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KM2209"</span>,</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KN210-04"</span>,</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1512"</span>,</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1515"</span>,</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1604"</span>,</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1607"</span>,</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1608"</span>,</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1609"</span>,</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1801"</span>,</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1803"</span>,</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1804"</span>,</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1805"</span>,</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1806"</span>,</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  <span class="st">"KOK1807"</span>,</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RR1814"</span>,</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RR1815"</span>,</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>  <span class="st">"SR1917"</span>,</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN243"</span>,</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN248"</span>,</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN252"</span>,</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN257"</span>,</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN260"</span>,</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN264-265"</span>,</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN265"</span>,</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN266"</span>,</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN267"</span>,</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN271"</span>,</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN280"</span>,</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN291"</span>,</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN292"</span>,</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tokyo_1"</span>,</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tokyo_2"</span>,</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>  <span class="st">"W1005A"</span>,</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>  <span class="st">"TN398_1min"</span> <span class="co"># </span><span class="al">TODO</span><span class="co">: document this "one-minute downsample"</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(cruisename <span class="cf">in</span> cruise_ids){</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(cruisename, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  figure_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">"figures"</span>, cruisename)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(figure_dir)) <span class="fu">dir.create</span>(figure_dir)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Load data</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  X <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(datadir, cruisename, <span class="st">"X.csv"</span>)) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Extract spatiotemporal identifiers and scale numerical variables</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  time0 <span class="ot">&lt;-</span> lubridate<span class="sc">::</span><span class="fu">as_datetime</span>(X<span class="sc">$</span>time)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  lat0 <span class="ot">&lt;-</span> X <span class="sc">%&gt;%</span> <span class="fu">pull</span>(lat)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  lon0 <span class="ot">&lt;-</span> X <span class="sc">%&gt;%</span> <span class="fu">pull</span>(lon)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  varnames <span class="ot">&lt;-</span> X <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"time"</span>, <span class="st">"lat"</span>, <span class="st">"lon"</span>)) <span class="sc">%&gt;%</span> <span class="fu">colnames</span>()</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 1. First take the means and standard deviations</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  means <span class="ot">=</span> X <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>time, <span class="sc">-</span>lat, <span class="sc">-</span>lon) <span class="sc">%&gt;%</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span><span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) </span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  sds <span class="ot">=</span> X <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>time, <span class="sc">-</span>lat, <span class="sc">-</span>lon) <span class="sc">%&gt;%</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span><span class="fu">sd</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Base R plot</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  means_sorted <span class="ot">&lt;-</span> <span class="fu">apply</span>(X[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>)], <span class="dv">2</span>, mean, <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sort</span>(<span class="at">decreasing=</span><span class="cn">TRUE</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">png</span>(</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file.path</span>(figure_dir, <span class="st">"variable_means.png"</span>),</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">units =</span> <span class="st">"in"</span>, <span class="at">res =</span> <span class="dv">150</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(means_sorted, <span class="at">main =</span> <span class="st">"Means of all variables, sorted"</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">graphics.off</span>()</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="do">## 2. Then, identify which variables have really big means</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  thresh <span class="ot">=</span> <span class="fl">1E10</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  somenames <span class="ot">=</span> means[,<span class="fu">which</span>(means<span class="sc">&gt;</span>thresh <span class="sc">&amp;</span> sds <span class="sc">&gt;</span> thresh)] <span class="sc">%&gt;%</span> <span class="fu">names</span>()</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(somenames) <span class="sc">&gt;=</span> <span class="dv">1</span>){</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="do">## 3. Visualize </span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> X[,somenames] <span class="sc">%&gt;%</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>      <span class="fu">add_column</span>(<span class="at">time =</span> time0) <span class="sc">%&gt;%</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pivot_longer</span>(<span class="sc">-</span>time)  <span class="sc">%&gt;%</span> </span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x=</span>time, <span class="at">y =</span> value, <span class="at">group =</span> name), <span class="at">size =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>      <span class="fu">facet_wrap</span>(<span class="sc">~</span>name, <span class="at">scale =</span> <span class="st">'free_y'</span>)   <span class="sc">+</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggtitle</span>(<span class="st">"The unusually high-value variables"</span>)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggsave</span>(</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>      <span class="fu">file.path</span>(figure_dir, <span class="st">"high_value_variables.png"</span>),</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>      p, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">units =</span> <span class="st">"in"</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="do">## 4. Remove these variables</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    X <span class="ot">=</span> X <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">all_of</span>(somenames))</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Store the scaling information</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  scaleobj <span class="ot">&lt;-</span> X <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>lat, <span class="sc">-</span>lon, <span class="sc">-</span>time) <span class="sc">%&gt;%</span> <span class="fu">scale</span>() </span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>  mean_val <span class="ot">&lt;-</span> <span class="fu">attr</span>(scaleobj, <span class="st">"scaled:center"</span>) <span class="sc">%&gt;%</span> <span class="fu">unname</span>()</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  sd_val <span class="ot">&lt;-</span> <span class="fu">attr</span>(scaleobj, <span class="st">"scaled:scale"</span>) <span class="sc">%&gt;%</span> <span class="fu">unname</span>()</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Double check that scaling is sound</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  scaled_data <span class="ot">=</span> <span class="fu">as.matrix</span>(scaleobj)</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>  unscaled_data <span class="ot">&lt;-</span> <span class="fu">sweep</span>(scaled_data, <span class="dv">2</span>, sd_val, <span class="st">`</span><span class="at">*</span><span class="st">`</span>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>  unscaled_data <span class="ot">&lt;-</span> <span class="fu">sweep</span>(unscaled_data, <span class="dv">2</span>, mean_val, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>  orig_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(X <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>time, <span class="sc">-</span>lat, <span class="sc">-</span>lon))</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Base R plot</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>  max_diffs <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">abs</span>(unscaled_data <span class="sc">-</span> orig_matrix), <span class="dv">2</span>, max, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sort</span>()</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">png</span>(</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file.path</span>(figure_dir, <span class="st">"reconstruction_errors.png"</span>),</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">units =</span> <span class="st">"in"</span>, <span class="at">res =</span> <span class="dv">150</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(max_diffs, <span class="at">type =</span> <span class="st">"p"</span>, <span class="at">xlab =</span> <span class="st">"Variables (Sorted)"</span>,</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Max Absolute Difference"</span>,</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Reconstruction Error per Variable"</span>)</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">graphics.off</span>()</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Save the scaling information</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>  X_scaled <span class="ot">=</span> scaled_data</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="fu">file.path</span>(outputdir, cruisename))) <span class="fu">dir.create</span>(<span class="fu">file.path</span>(outputdir, cruisename))</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">list</span>(<span class="at">X_before_scaling =</span> X,</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>               <span class="at">X_after_scaling =</span> X_scaled,</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>               <span class="at">scaleobj =</span> scaleobj,</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>               <span class="at">X_means =</span> mean_val,</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>               <span class="at">X_sds =</span> sd_val),</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>          <span class="at">file =</span> <span class="fu">file.path</span>(outputdir, cruisename, <span class="st">"cmap-scaling-info.RDS"</span>))</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Proportion of missing time points</span></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>  num_na <span class="ot">&lt;-</span> <span class="fu">apply</span>(X_scaled, <span class="dv">2</span>, <span class="cf">function</span>(mycol) <span class="fu">sum</span>(<span class="fu">is.na</span>(mycol))) </span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>  <span class="do">## print(head(sort(num_na, decreasing = TRUE)))</span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>  num_time_points <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X_scaled)</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>  prop_missing <span class="ot">&lt;-</span> num_na <span class="sc">/</span> num_time_points</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Missingness distribution histogram</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">png</span>(</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file.path</span>(figure_dir, <span class="st">"NA_distribution.png"</span>),</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">units =</span> <span class="st">"in"</span>, <span class="at">res =</span> <span class="dv">150</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hist</span>(prop_missing, <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">main =</span> <span class="st">"Proportion of missing time points"</span>)</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abline</span>(<span class="at">v =</span> <span class="fl">0.25</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lty =</span> <span class="dv">2</span>)  </span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>    missing_only_few <span class="ot">&lt;-</span> <span class="fu">sum</span>(prop_missing <span class="sc">&lt;</span> <span class="fl">0.25</span>)</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>    <span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">paste0</span>(<span class="st">"Missing only</span><span class="sc">\n</span><span class="st">a few:</span><span class="sc">\n</span><span class="st">"</span>, missing_only_few, <span class="st">"</span><span class="sc">\n</span><span class="st">variables"</span>), <span class="at">box.lwd =</span> <span class="dv">0</span>)</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>    missing_a_lot <span class="ot">&lt;-</span> <span class="fu">sum</span>(prop_missing <span class="sc">&gt;</span> <span class="fl">0.25</span>)</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>    <span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">paste0</span>(<span class="st">"Missing </span><span class="sc">\n</span><span class="st">a lot:</span><span class="sc">\n</span><span class="st">"</span>, missing_a_lot, <span class="st">"</span><span class="sc">\n</span><span class="st">variables"</span>), <span class="at">box.lwd =</span> <span class="dv">0</span>)</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">graphics.off</span>()</span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Visualize the feature matrix before imputation (variables with $&lt;25\%$ missing values):</span></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>  X_scaled_copy0 <span class="ot">&lt;-</span> X_scaled <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(X_scaled_copy0) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Matrix Completion via Low-Rank SVD (`softImpute`); we'll</span></span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>  <span class="do">## fill missing values using nuclear-norm regularized singular value decomposition (`softImpute`).</span></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>  X_scaled_copy <span class="ot">&lt;-</span> X_scaled_copy0[, prop_missing <span class="sc">&lt;</span> <span class="fl">0.25</span>] </span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">sum</span>(<span class="fu">is.na</span>(X_scaled_copy)) <span class="sc">&gt;=</span> <span class="dv">1</span>){</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Fit nuclear-norm regularized SVD model</span></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">softImpute</span>(X_scaled_copy, <span class="at">rank.max =</span> <span class="dv">100</span>, <span class="at">lambda =</span> <span class="dv">10</span>) <span class="do">## I haven't carefully chosen lambda (or rank.max); we should do this..</span></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Complete matrix (fill NAs using low-rank fit)</span></span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>    X_hat <span class="ot">&lt;-</span> <span class="fu">complete</span>(X_scaled_copy, fit, <span class="at">unscale =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Compare imputed entries against original observed series:</span></span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>    X_smaller <span class="ot">&lt;-</span> X_scaled_copy</span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>    observed_vec <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(X_smaller)</span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X_smaller)</span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X_smaller)</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a>      <span class="at">Time =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="at">times =</span> p),</span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>      <span class="at">Series =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>p, <span class="at">each =</span> n),</span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a>      <span class="at">Value =</span> <span class="fu">as.vector</span>(X_hat),</span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>      <span class="at">Imputed_or_not =</span> <span class="fu">is.na</span>(observed_vec)  </span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>    df_plot <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>        <span class="at">Series_Label =</span> <span class="fu">paste</span>(<span class="st">"Series"</span>, Series),</span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>        <span class="at">Status =</span> <span class="fu">ifelse</span>(Imputed_or_not, <span class="st">"Imputed"</span>, <span class="st">"Observed"</span>)</span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>    imputed_plot <span class="ot">&lt;-</span> df_plot <span class="sc">%&gt;%</span></span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>      <span class="fu">group_by</span>(Series) <span class="sc">%&gt;%</span></span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>      <span class="fu">filter</span>(<span class="fu">any</span>(Imputed_or_not)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Time, <span class="at">y =</span> Value)) <span class="sc">+</span></span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"gray50"</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>(</span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> . <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Imputed_or_not),</span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">color =</span> Status),</span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="fl">0.3</span></span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">+</span></span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a>      <span class="fu">facet_wrap</span>(<span class="sc">~</span> Series_Label, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_color_manual</span>(</span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a>        <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Imputed"</span> <span class="ot">=</span> <span class="st">"firebrick"</span>, <span class="st">"Observed"</span> <span class="ot">=</span> <span class="st">"gray30"</span>)</span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">+</span></span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(</span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Time Series Imputation via softImpute"</span>,</span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a>        <span class="do">##| fig-cap: "Comparison of observed vs. softImpute filled values across series"</span></span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Time Index"</span>,</span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Value"</span>,</span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">"Data Point"</span></span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">+</span></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme</span>(</span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggsave</span>(</span>
+<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a>      <span class="fu">file.path</span>(figure_dir, <span class="st">"imputation.png"</span>),</span>
+<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a>      imputed_plot, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">units =</span> <span class="st">"in"</span></span>
+<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>    X_hat <span class="ot">=</span> X_scaled_copy0[, prop_missing <span class="sc">&lt;</span> <span class="fl">0.25</span>]</span>
+<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Sanity check: confirm non-imputed entries were untouched:</span></span>
+<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a>  reconstruction_errors <span class="ot">&lt;-</span> (X_scaled_copy0[, prop_missing <span class="sc">&lt;</span> <span class="fl">0.25</span>] <span class="sc">-</span> X_hat) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.numeric</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summary</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.list</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>(<span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>(</span>
+<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.character</span>(</span>
+<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a>      <span class="fu">make_html_table</span>(</span>
+<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a>        reconstruction_errors,</span>
+<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a>        <span class="at">table_caption =</span> <span class="st">"Summary of the reconstruction errors"</span></span>
+<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a>    <span class="fu">file.path</span>(figure_dir, <span class="st">"reconstruction_errs.html"</span>)</span>
+<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Format the imputed output, re-attach spatial coordinates, and aggregate to hourly resolution.</span></span>
+<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a>  varnames <span class="ot">=</span> <span class="fu">colnames</span>(X_scaled)</span>
+<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a>  remaining_names <span class="ot">=</span> varnames[prop_missing <span class="sc">&lt;</span> <span class="fl">0.25</span>]</span>
+<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(X_hat) <span class="ot">&lt;-</span> remaining_names</span>
+<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a>  X_imputed <span class="ot">&lt;-</span> X_hat <span class="sc">%&gt;%</span> </span>
+<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_column</span>(<span class="at">time =</span> time0, <span class="at">lat =</span> lat0, <span class="at">lon =</span> lon0, <span class="at">.before =</span> <span class="dv">1</span>)</span>
+<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a>  X_imputed_hourly <span class="ot">&lt;-</span> X_imputed <span class="sc">%&gt;%</span> </span>
+<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(<span class="at">time =</span> lubridate<span class="sc">::</span><span class="fu">floor_date</span>(time, <span class="st">"hour"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), mean), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Save the imputed covariates in a single file;</span></span>
+<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(X_imputed_hourly,</span>
+<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a>            <span class="at">file =</span> <span class="fu">file.path</span>(outputdir, cruisename, <span class="st">"X-from-cmap-imputed-and-scaled.csv"</span>),</span>
+<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a>            <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Close the tab</span></span>
+<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n\n</span><span class="st">"</span>)</span>
+<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">KOK1606</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MGL1704</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">KM1906</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false" href="">TN397</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" role="tab" aria-controls="tabset-1-5" aria-selected="false" href="">TN412</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">KOK1606</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">MGL1704</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">KM1906</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false" href="">TN397</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" role="tab" aria-controls="tabset-1-5" aria-selected="false" href="">TN412</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-6" role="tab" aria-controls="tabset-1-6" aria-selected="false" href="">CN11ID</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-7-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-7" role="tab" aria-controls="tabset-1-7" aria-selected="false" href="">CN12ID</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-8-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-8" role="tab" aria-controls="tabset-1-8" aria-selected="false" href="">CN13ID</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-9-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-9" role="tab" aria-controls="tabset-1-9" aria-selected="false" href="">FK180310-1</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-10-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-10" role="tab" aria-controls="tabset-1-10" aria-selected="false" href="">FK180310-2</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-11-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-11" role="tab" aria-controls="tabset-1-11" aria-selected="false" href="">KM1314</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-12-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-12" role="tab" aria-controls="tabset-1-12" aria-selected="false" href="">KM1427</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-13-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-13" role="tab" aria-controls="tabset-1-13" aria-selected="false" href="">KM1502</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-14-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-14" role="tab" aria-controls="tabset-1-14" aria-selected="false" href="">KM1508</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-15-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-15" role="tab" aria-controls="tabset-1-15" aria-selected="false" href="">KM1510</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-16-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-16" role="tab" aria-controls="tabset-1-16" aria-selected="false" href="">KM1512</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-17-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-17" role="tab" aria-controls="tabset-1-17" aria-selected="false" href="">KM1513</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-18-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-18" role="tab" aria-controls="tabset-1-18" aria-selected="false" href="">KM1518</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-19-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-19" role="tab" aria-controls="tabset-1-19" aria-selected="false" href="">KM1601</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-20-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-20" role="tab" aria-controls="tabset-1-20" aria-selected="false" href="">KM1602</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-21-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-21" role="tab" aria-controls="tabset-1-21" aria-selected="false" href="">KM1603</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-22-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-22" role="tab" aria-controls="tabset-1-22" aria-selected="false" href="">KM1708</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-23-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-23" role="tab" aria-controls="tabset-1-23" aria-selected="false" href="">KM1709</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-24-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-24" role="tab" aria-controls="tabset-1-24" aria-selected="false" href="">KM1712</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-25-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-25" role="tab" aria-controls="tabset-1-25" aria-selected="false" href="">KM1713</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-26-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-26" role="tab" aria-controls="tabset-1-26" aria-selected="false" href="">KM1717</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-27-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-27" role="tab" aria-controls="tabset-1-27" aria-selected="false" href="">KM1802</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-28-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-28" role="tab" aria-controls="tabset-1-28" aria-selected="false" href="">KM1805</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-29-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-29" role="tab" aria-controls="tabset-1-29" aria-selected="false" href="">KM1821</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-30-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-30" role="tab" aria-controls="tabset-1-30" aria-selected="false" href="">KM1823</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-31-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-31" role="tab" aria-controls="tabset-1-31" aria-selected="false" href="">KM1901</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-32-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-32" role="tab" aria-controls="tabset-1-32" aria-selected="false" href="">KM1903</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-33-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-33" role="tab" aria-controls="tabset-1-33" aria-selected="false" href="">KM1909</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-34-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-34" role="tab" aria-controls="tabset-1-34" aria-selected="false" href="">KM1912</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-35-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-35" role="tab" aria-controls="tabset-1-35" aria-selected="false" href="">KM1915</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-36-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-36" role="tab" aria-controls="tabset-1-36" aria-selected="false" href="">KM1917</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-37-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-37" role="tab" aria-controls="tabset-1-37" aria-selected="false" href="">KM1919</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-38-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-38" role="tab" aria-controls="tabset-1-38" aria-selected="false" href="">KM1920</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-39-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-39" role="tab" aria-controls="tabset-1-39" aria-selected="false" href="">KM1923</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-40-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-40" role="tab" aria-controls="tabset-1-40" aria-selected="false" href="">KM1924</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-41-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-41" role="tab" aria-controls="tabset-1-41" aria-selected="false" href="">KM2001</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-42-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-42" role="tab" aria-controls="tabset-1-42" aria-selected="false" href="">KM2002</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-43-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-43" role="tab" aria-controls="tabset-1-43" aria-selected="false" href="">KM2009</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-44-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-44" role="tab" aria-controls="tabset-1-44" aria-selected="false" href="">KM2010</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-45-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-45" role="tab" aria-controls="tabset-1-45" aria-selected="false" href="">KM2011</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-46-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-46" role="tab" aria-controls="tabset-1-46" aria-selected="false" href="">KM2013</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-47-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-47" role="tab" aria-controls="tabset-1-47" aria-selected="false" href="">KM2014</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-48-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-48" role="tab" aria-controls="tabset-1-48" aria-selected="false" href="">KM2101</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-49-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-49" role="tab" aria-controls="tabset-1-49" aria-selected="false" href="">KM2103</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-50-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-50" role="tab" aria-controls="tabset-1-50" aria-selected="false" href="">KM2104</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-51-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-51" role="tab" aria-controls="tabset-1-51" aria-selected="false" href="">KM2105</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-52-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-52" role="tab" aria-controls="tabset-1-52" aria-selected="false" href="">KM2109</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-53-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-53" role="tab" aria-controls="tabset-1-53" aria-selected="false" href="">KM2111</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-54-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-54" role="tab" aria-controls="tabset-1-54" aria-selected="false" href="">KM2112</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-55-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-55" role="tab" aria-controls="tabset-1-55" aria-selected="false" href="">KM2209</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-56-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-56" role="tab" aria-controls="tabset-1-56" aria-selected="false" href="">KN210-04</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-57-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-57" role="tab" aria-controls="tabset-1-57" aria-selected="false" href="">KOK1512</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-58-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-58" role="tab" aria-controls="tabset-1-58" aria-selected="false" href="">KOK1515</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-59-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-59" role="tab" aria-controls="tabset-1-59" aria-selected="false" href="">KOK1604</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-60-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-60" role="tab" aria-controls="tabset-1-60" aria-selected="false" href="">KOK1607</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-61-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-61" role="tab" aria-controls="tabset-1-61" aria-selected="false" href="">KOK1608</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-62-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-62" role="tab" aria-controls="tabset-1-62" aria-selected="false" href="">KOK1609</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-63-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-63" role="tab" aria-controls="tabset-1-63" aria-selected="false" href="">KOK1801</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-64-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-64" role="tab" aria-controls="tabset-1-64" aria-selected="false" href="">KOK1803</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-65-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-65" role="tab" aria-controls="tabset-1-65" aria-selected="false" href="">KOK1804</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-66-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-66" role="tab" aria-controls="tabset-1-66" aria-selected="false" href="">KOK1805</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-67-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-67" role="tab" aria-controls="tabset-1-67" aria-selected="false" href="">KOK1806</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-68-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-68" role="tab" aria-controls="tabset-1-68" aria-selected="false" href="">KOK1807</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-69-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-69" role="tab" aria-controls="tabset-1-69" aria-selected="false" href="">RR1814</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-70-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-70" role="tab" aria-controls="tabset-1-70" aria-selected="false" href="">RR1815</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-71-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-71" role="tab" aria-controls="tabset-1-71" aria-selected="false" href="">SR1917</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-72-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-72" role="tab" aria-controls="tabset-1-72" aria-selected="false" href="">TN243</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-73-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-73" role="tab" aria-controls="tabset-1-73" aria-selected="false" href="">TN248</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-74-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-74" role="tab" aria-controls="tabset-1-74" aria-selected="false" href="">TN252</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-75-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-75" role="tab" aria-controls="tabset-1-75" aria-selected="false" href="">TN257</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-76-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-76" role="tab" aria-controls="tabset-1-76" aria-selected="false" href="">TN260</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-77-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-77" role="tab" aria-controls="tabset-1-77" aria-selected="false" href="">TN264-265</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-78-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-78" role="tab" aria-controls="tabset-1-78" aria-selected="false" href="">TN265</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-79-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-79" role="tab" aria-controls="tabset-1-79" aria-selected="false" href="">TN266</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-80-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-80" role="tab" aria-controls="tabset-1-80" aria-selected="false" href="">TN267</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-81-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-81" role="tab" aria-controls="tabset-1-81" aria-selected="false" href="">TN271</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-82-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-82" role="tab" aria-controls="tabset-1-82" aria-selected="false" href="">TN280</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-83-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-83" role="tab" aria-controls="tabset-1-83" aria-selected="false" href="">TN291</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-84-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-84" role="tab" aria-controls="tabset-1-84" aria-selected="false" href="">TN292</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-85-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-85" role="tab" aria-controls="tabset-1-85" aria-selected="false" href="">Tokyo_1</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-86-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-86" role="tab" aria-controls="tabset-1-86" aria-selected="false" href="">Tokyo_2</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-87-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-87" role="tab" aria-controls="tabset-1-87" aria-selected="false" href="">W1005A</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-88-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-88" role="tab" aria-controls="tabset-1-88" aria-selected="false" href="">TN398_1min</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<img src="02-process-seaflow-covariates_files/figure-html/load-data-1.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-2.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-3.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-4.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-5.png" class="img-fluid" width="768">
-<table>
+<p><img src="figures/KOK1606/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1606/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1606/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1606/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KOK1606/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 Summary of the reconstruction errors
 </caption>
@@ -366,8 +685,12 @@ NA’s
 </table>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<img src="02-process-seaflow-covariates_files/figure-html/load-data-6.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-7.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-8.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-9.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-10.png" class="img-fluid" width="768">
-<table>
+<p><img src="figures/MGL1704/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/MGL1704/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/MGL1704/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/MGL1704/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/MGL1704/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 Summary of the reconstruction errors
 </caption>
@@ -424,8 +747,12 @@ NA’s
 </table>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<img src="02-process-seaflow-covariates_files/figure-html/load-data-11.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-12.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-13.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-14.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-15.png" class="img-fluid" width="768">
-<table>
+<p><img src="figures/KM1906/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1906/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1906/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1906/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1906/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 Summary of the reconstruction errors
 </caption>
@@ -482,8 +809,11 @@ NA’s
 </table>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
-<img src="02-process-seaflow-covariates_files/figure-html/load-data-16.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-17.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-18.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-19.png" class="img-fluid" width="768">
-<table>
+<p><img src="figures/TN397/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN397/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN397/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN397/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 Summary of the reconstruction errors
 </caption>
@@ -540,8 +870,11 @@ NA’s
 </table>
 </div>
 <div id="tabset-1-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-5-tab">
-<img src="02-process-seaflow-covariates_files/figure-html/load-data-20.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-21.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-22.png" class="img-fluid" width="768"><img src="02-process-seaflow-covariates_files/figure-html/load-data-23.png" class="img-fluid" width="768">
-<table>
+<p><img src="figures/TN412/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN412/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN412/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN412/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 Summary of the reconstruction errors
 </caption>
@@ -597,13 +930,4893 @@ NA’s
 </tbody>
 </table>
 </div>
+<div id="tabset-1-6" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-6-tab">
+<p><img src="figures/CN11ID/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/CN11ID/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/CN11ID/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/CN11ID/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/CN11ID/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+48792
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-7" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-7-tab">
+<p><img src="figures/CN12ID/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/CN12ID/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/CN12ID/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/CN12ID/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/CN12ID/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+16266
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-8" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-8-tab">
+<p><img src="figures/CN13ID/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/CN13ID/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/CN13ID/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/CN13ID/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/CN13ID/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+927
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-9" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-9-tab">
+<p><img src="figures/FK180310-1/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-1/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-1/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-1/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-1/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+22924
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-10" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-10-tab">
+<p><img src="figures/FK180310-2/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-2/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-2/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-2/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/FK180310-2/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+14265
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-11" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-11-tab">
+<p><img src="figures/KM1314/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1314/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1314/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1314/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1314/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+18144
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-12" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-12-tab">
+<p><img src="figures/KM1427/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1427/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1427/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1427/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-13" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-13-tab">
+<p><img src="figures/KM1502/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1502/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1502/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1502/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1502/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+3
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-14" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-14-tab">
+<p><img src="figures/KM1508/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1508/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1508/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1508/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-15" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-15-tab">
+<p><img src="figures/KM1510/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1510/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1510/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1510/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1510/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+8
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-16" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-16-tab">
+<p><img src="figures/KM1512/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1512/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1512/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1512/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1512/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+216
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-17" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-17-tab">
+<p><img src="figures/KM1513/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1513/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1513/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1513/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1513/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+13965
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-18" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-18-tab">
+<p><img src="figures/KM1518/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1518/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1518/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1518/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-19" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-19-tab">
+<p><img src="figures/KM1601/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1601/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1601/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1601/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-20" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-20-tab">
+<p><img src="figures/KM1602/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1602/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1602/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1602/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-21" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-21-tab">
+<p><img src="figures/KM1603/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1603/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1603/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1603/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-22" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-22-tab">
+<p><img src="figures/KM1708/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1708/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1708/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1708/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1708/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+11929
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-23" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-23-tab">
+<p><img src="figures/KM1709/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1709/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1709/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1709/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1709/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+22749
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-24" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-24-tab">
+<p><img src="figures/KM1712/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1712/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1712/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1712/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1712/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+51656
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-25" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-25-tab">
+<p><img src="figures/KM1713/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1713/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1713/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1713/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1713/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+8989
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-26" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-26-tab">
+<p><img src="figures/KM1717/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1717/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1717/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1717/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1717/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+11042
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-27" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-27-tab">
+<p><img src="figures/KM1802/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1802/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1802/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1802/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-28" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-28-tab">
+<p><img src="figures/KM1805/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1805/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1805/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1805/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-29" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-29-tab">
+<p><img src="figures/KM1821/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1821/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1821/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1821/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-30" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-30-tab">
+<p><img src="figures/KM1823/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1823/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1823/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1823/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-31" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-31-tab">
+<p><img src="figures/KM1901/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1901/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1901/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1901/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-32" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-32-tab">
+<p><img src="figures/KM1903/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1903/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1903/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1903/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-33" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-33-tab">
+<p><img src="figures/KM1909/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1909/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1909/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1909/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-34" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-34-tab">
+<p><img src="figures/KM1912/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1912/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1912/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1912/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-35" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-35-tab">
+<p><img src="figures/KM1915/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1915/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1915/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1915/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-36" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-36-tab">
+<p><img src="figures/KM1917/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1917/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1917/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1917/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-37" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-37-tab">
+<p><img src="figures/KM1919/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1919/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1919/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1919/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1919/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+14350
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-38" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-38-tab">
+<p><img src="figures/KM1920/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1920/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1920/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1920/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1920/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+67497
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-39" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-39-tab">
+<p><img src="figures/KM1923/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1923/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1923/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1923/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1923/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+11934
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-40" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-40-tab">
+<p><img src="figures/KM1924/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM1924/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM1924/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM1924/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM1924/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+334
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-41" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-41-tab">
+<p><img src="figures/KM2001/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2001/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM2001/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2001/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-42" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-42-tab">
+<p><img src="figures/KM2002/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2002/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KM2002/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2002/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM2002/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+2030
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-43" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-43-tab">
+<p><img src="figures/KM2009/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2009/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2009/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-44" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-44-tab">
+<p><img src="figures/KM2010/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2010/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2010/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM2010/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+43200
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-45" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-45-tab">
+<p><img src="figures/KM2011/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2011/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2011/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM2011/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1640
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-46" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-46-tab">
+<p><img src="figures/KM2013/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2013/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2013/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM2013/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+348
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-47" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-47-tab">
+<p><img src="figures/KM2014/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2014/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2014/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-48" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-48-tab">
+<p><img src="figures/KM2101/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2101/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2101/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-49" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-49-tab">
+<p><img src="figures/KM2103/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2103/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2103/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM2103/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+15609
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-50" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-50-tab">
+<p><img src="figures/KM2104/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2104/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2104/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-51" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-51-tab">
+<p><img src="figures/KM2105/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2105/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2105/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-52" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-52-tab">
+<p><img src="figures/KM2109/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2109/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2109/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-53" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-53-tab">
+<p><img src="figures/KM2111/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2111/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2111/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-54" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-54-tab">
+<p><img src="figures/KM2112/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2112/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2112/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KM2112/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+5606
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-55" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-55-tab">
+<p><img src="figures/KM2209/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KM2209/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KM2209/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-56" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-56-tab">
+<p><img src="figures/KN210-04/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KN210-04/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KN210-04/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KN210-04/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KN210-04/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+165685
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-57" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-57-tab">
+<p><img src="figures/KOK1512/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1512/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1512/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1512/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-58" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-58-tab">
+<p><img src="figures/KOK1515/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1515/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1515/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1515/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-59" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-59-tab">
+<p><img src="figures/KOK1604/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1604/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1604/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1604/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-60" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-60-tab">
+<p><img src="figures/KOK1607/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1607/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1607/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1607/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-61" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-61-tab">
+<p><img src="figures/KOK1608/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1608/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1608/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1608/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KOK1608/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+20273
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-62" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-62-tab">
+<p><img src="figures/KOK1609/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1609/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1609/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1609/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-63" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-63-tab">
+<p><img src="figures/KOK1801/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1801/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1801/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1801/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KOK1801/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+25184
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-64" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-64-tab">
+<p><img src="figures/KOK1803/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1803/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1803/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1803/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-65" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-65-tab">
+<p><img src="figures/KOK1804/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1804/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1804/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1804/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-66" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-66-tab">
+<p><img src="figures/KOK1805/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1805/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1805/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1805/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KOK1805/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+17046
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-67" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-67-tab">
+<p><img src="figures/KOK1806/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1806/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1806/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1806/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-68" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-68-tab">
+<p><img src="figures/KOK1807/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/KOK1807/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/KOK1807/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/KOK1807/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/KOK1807/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+6284
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-69" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-69-tab">
+<p><img src="figures/RR1814/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/RR1814/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/RR1814/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/RR1814/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/RR1814/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+96569
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-70" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-70-tab">
+<p><img src="figures/RR1815/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/RR1815/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/RR1815/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/RR1815/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/RR1815/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+77239
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-71" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-71-tab">
+<p><img src="figures/SR1917/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/SR1917/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/SR1917/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/SR1917/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/SR1917/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+323271
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-72" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-72-tab">
+<p><img src="figures/TN243/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN243/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN243/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN243/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-73" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-73-tab">
+<p><img src="figures/TN248/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN248/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN248/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN248/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-74" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-74-tab">
+<p><img src="figures/TN252/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN252/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN252/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN252/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN252/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+16155
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-75" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-75-tab">
+<p><img src="figures/TN257/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN257/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN257/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN257/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN257/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+29611
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-76" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-76-tab">
+<p><img src="figures/TN260/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN260/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN260/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN260/NA_distribution.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-77" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-77-tab">
+<p><img src="figures/TN264-265/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN264-265/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN264-265/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN264-265/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN264-265/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+19551
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-78" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-78-tab">
+<p><img src="figures/TN265/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN265/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN265/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN265/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN265/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+103815
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-79" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-79-tab">
+<p><img src="figures/TN266/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN266/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN266/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN266/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN266/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+146497
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-80" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-80-tab">
+<p><img src="figures/TN267/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN267/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN267/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN267/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN267/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+50030
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-81" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-81-tab">
+<p><img src="figures/TN271/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN271/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN271/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN271/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN271/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+11466
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-82" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-82-tab">
+<p><img src="figures/TN280/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN280/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN280/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN280/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN280/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+4215
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-83" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-83-tab">
+<p><img src="figures/TN291/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN291/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN291/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN291/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN291/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+7199
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-84" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-84-tab">
+<p><img src="figures/TN292/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN292/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/TN292/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN292/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN292/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+21645
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-85" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-85-tab">
+<p><img src="figures/Tokyo_1/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_1/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_1/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_1/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_1/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+22077
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-86" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-86-tab">
+<p><img src="figures/Tokyo_2/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_2/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_2/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_2/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/Tokyo_2/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+8992
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-87" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-87-tab">
+<p><img src="figures/W1005A/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/W1005A/high_value_variables.png" style="width:100%;"></p>
+<p><img src="figures/W1005A/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/W1005A/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/W1005A/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+85677
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-1-88" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-88-tab">
+<p><img src="figures/TN398_1min/variable_means.png" style="width:100%;"></p>
+<p><img src="figures/TN398_1min/reconstruction_errors.png" style="width:100%;"></p>
+<p><img src="figures/TN398_1min/NA_distribution.png" style="width:100%;"></p>
+<p><img src="figures/TN398_1min/imputation.png" style="width:100%;"></p>
+<table class="table table-striped table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the reconstruction errors
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Min.
+</th>
+<th style="text-align:center;">
+1st Qu.
+</th>
+<th style="text-align:center;">
+Median
+</th>
+<th style="text-align:center;">
+Mean
+</th>
+<th style="text-align:center;">
+3rd Qu.
+</th>
+<th style="text-align:center;">
+Max.
+</th>
+<th style="text-align:center;">
+NA’s
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+875
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop rendering the document right here</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">knit_exit</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop rendering the document right here</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">knit_exit</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 

@@ -80,18 +80,108 @@ make_html_table <- function(mytab, table_caption = NULL) {
 
 Load the cruise dataset and scale numeric features.
 
+```{r cruises}
+# TODO: convert to cruise names
+
+cruise_ids = c(
+  "KOK1606", ## G1
+  "MGL1704", ## G2
+  "KM1906", ## G3
+  "TN397", ## G4
+  "TN412",  ## G5
+  "CN11ID",
+  "CN12ID",
+  "CN13ID",
+  "FK180310-1",
+  "FK180310-2",
+  "KM1314",
+  "KM1427",
+  "KM1502",
+  "KM1508",
+  "KM1510",
+  "KM1512",
+  "KM1513",
+  "KM1518",
+  "KM1601",
+  "KM1602",
+  "KM1603",
+  "KM1708",
+  "KM1709",
+  "KM1712",
+  "KM1713",
+  "KM1717",
+  "KM1802",
+  "KM1805",
+  "KM1821",
+  "KM1823",
+  "KM1901",
+  "KM1903",
+  "KM1909",
+  "KM1912",
+  "KM1915",
+  "KM1917",
+  "KM1919",
+  "KM1920",
+  "KM1923",
+  "KM1924",
+  "KM2001",
+  "KM2002",
+  "KM2009",
+  "KM2010",
+  "KM2011",
+  "KM2013",
+  "KM2014",
+  "KM2101",
+  "KM2103",
+  "KM2104",
+  "KM2105",
+  "KM2109",
+  "KM2111",
+  "KM2112",
+  "KM2209",
+  "KN210-04",
+  "KOK1512",
+  "KOK1515",
+  "KOK1604",
+  "KOK1607",
+  "KOK1608",
+  "KOK1609",
+  "KOK1801",
+  "KOK1803",
+  "KOK1804",
+  "KOK1805",
+  "KOK1806",
+  "KOK1807",
+  "RR1814",
+  "RR1815",
+  "SR1917",
+  "TN243",
+  "TN248",
+  "TN252",
+  "TN257",
+  "TN260",
+  "TN264-265",
+  "TN265",
+  "TN266",
+  "TN267",
+  "TN271",
+  "TN280",
+  "TN291",
+  "TN292",
+  "Tokyo_1",
+  "Tokyo_2",
+  "W1005A",
+  "TN398_1min" # TODO: document this "one-minute downsample"
+)
+```
+
 ```{r load-data}
 #| eval: FALSE
 #| warning: false
 #| message: false
 
-cruisenames = c("KOK1606", ## G1
-                "MGL1704", ## G2
-                "KM1906", ## G3
-                "TN397", ## G4
-                "TN412")  ## G5
-
-for(cruisename in cruisenames){
+for(cruisename in cruise_ids){
+  cat(cruisename, "\n")
 
   figure_dir <- file.path("figures", cruisename)
   if(!dir.exists(figure_dir)) dir.create(figure_dir)
@@ -327,7 +417,7 @@ print_figure <- function(filename) {
   }
 }
 
-for(cruisename in cruisenames){
+for(cruisename in cruise_ids){
 
   ## Print the markdown header for the tab
   cat("### ", cruisename, "\n\n", sep = "")
